@@ -284,3 +284,4 @@ C:\Users\hp\Downloads\HolisticDepartmentExamSystem\obj\Debug\net10.0\refint\Holi
 C:\Users\hp\Downloads\HolisticDepartmentExamSystem\obj\Debug\net10.0\HolisticDepartmentExamSystem.pdb
 C:\Users\hp\Downloads\HolisticDepartmentExamSystem\obj\Debug\net10.0\HolisticDepartmentExamSystem.genruntimeconfig.cache
 C:\Users\hp\Downloads\HolisticDepartmentExamSystem\obj\Debug\net10.0\ref\HolisticDepartmentExamSystem.dll
+C:\Users\hp\Downloads\HolisticDepartmentExamSystem\obj\Debug\net10.0\HolisticDepartmentExamSystem.sourcelink.json

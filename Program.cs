@@ -58,8 +58,7 @@ using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         
-        // Drop and recreate database to ensure clean schema
-        dbContext.Database.EnsureDeleted();
+        // Create database if it doesn't exist (preserve existing data)
         dbContext.Database.EnsureCreated();
         
         // Seed admin user if it doesn't exist

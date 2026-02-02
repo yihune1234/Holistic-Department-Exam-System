@@ -2,7 +2,12 @@
 @{
     ViewData["Title"] = Model.Exam.Title;
     Layout = null; // Full-screen exam mode
-    var questions = Model.Exam.Questions.OrderBy(q => q.QuestionOrder).ToList();
+    var questions = Model.Exam.Questions
+        .GroupBy(q => q.QuestionId)
+        .Select(g => g.First())
+        .OrderBy(q => q.QuestionOrder)
+        .ToList();
+}
 }
 
 <!DOCTYPE html>
@@ -494,9 +499,7 @@
 
         // Initialize
         $(document).ready(function() {
-            startTimer();
-            preventNavigation();
-            updateProgressStats();
+            // Merged initialization
             sendHeartbeat("Started Exam"); // Initial ping
         });
     </script>

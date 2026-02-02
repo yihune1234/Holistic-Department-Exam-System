@@ -20,10 +20,28 @@
             </a>
         </div>
 
-        @foreach (var answer in Model.Answers)
+        @{
+            // Calculate weighted marks for display consistency
+            var uniqueQuestions = Model.Attempt.Exam.Questions.GroupBy(q => q.QuestionId).Select(g => g.First()).ToList();
+            int totalRawPoints = uniqueQuestions.Sum(q => q.Marks);
+            var weightedMarksDict = new Dictionary<int, double>();
+            
+            foreach (var question in uniqueQuestions)
+            {
+                double weightedMark = totalRawPoints == Model.Attempt.Exam.TotalMarks 
+                    ? question.Marks 
+                    : ((double)question.Marks / totalRawPoints) * Model.Attempt.Exam.TotalMarks;
+                weightedMarksDict[question.QuestionId] = Math.Round(weightedMark, 2);
+            }
+        }
+
+        @foreach (var answer in Model.Answers.GroupBy(a => a.QuestionId).Select(g => g.First()))
         {
             var isCorrect = answer.SelectedChoice?.IsCorrect ?? false;
-            var marksAwarded = isCorrect ? answer.Question.Marks : 0;
+            var weightedMarks = weightedMarksDict.ContainsKey(answer.Question.QuestionId) 
+                ? weightedMarksDict[answer.Question.QuestionId] 
+                : answer.Question.Marks;
+            var marksAwarded = isCorrect ? weightedMarks : 0;
             
             <div class="glass-card mb-4 border-0 p-0 overflow-hidden shadow-sm">
                 <div class="p-4 bg-white bg-opacity-50">
@@ -38,7 +56,7 @@
                         </div>
                         <div class="text-end" style="min-width: 120px;">
                             <span class="badge @(isCorrect ? "bg-success" : "bg-danger") bg-opacity-75 rounded-pill px-3 py-2">
-                                @(isCorrect ? "Correct" : "Incorrect") (@marksAwarded/@answer.Question.Marks pts)
+                                @(isCorrect ? "Correct" : "Incorrect") (@marksAwarded.ToString("F2")/@weightedMarks.ToString("F2") pts)
                             </span>
                         </div>
                     </div>

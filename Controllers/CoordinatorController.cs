@@ -25,6 +25,8 @@ namespace HolisticDepartmentExamSystem.Controllers
         public async Task<IActionResult> Dashboard()
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
+            if (user == null) return RedirectToAction("Login", "Account");
+            
             var coordinatorId = user.UserId;
 
             var exams = await _context.Exams.Where(e => e.CreatedBy == coordinatorId).ToListAsync();
@@ -81,6 +83,8 @@ namespace HolisticDepartmentExamSystem.Controllers
         public async Task<IActionResult> ExamList()
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
+            if (user == null) return RedirectToAction("Login", "Account");
+            
             var exams = await _context.Exams
                 .Where(e => e.CreatedBy == user.UserId)
                 .Include(e => e.Questions)
