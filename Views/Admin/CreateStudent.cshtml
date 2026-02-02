@@ -1,0 +1,105 @@
+@model HolisticDepartmentExamSystem.Models.Student
+@{
+    ViewData["Title"] = "Create New Student";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-card fade-in-up" style="max-width: 900px; margin: 0 auto;">
+    <div class="card-header">
+        <h3 class="card-title">Create New Student</h3>
+        <a asp-action="ManageStudents" class="btn-custom btn-outline-custom">
+            <span>←</span> Back to Students
+        </a>
+    </div>
+
+    <form asp-action="CreateStudent" method="post">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <!-- Student Information -->
+            <div class="form-group-custom">
+                <label class="form-label-custom" asp-for="FullName">Full Name</label>
+                <input asp-for="FullName" class="form-control-custom" placeholder="Enter full name" required />
+                <span asp-validation-for="FullName" style="color: #ff6b6b; font-size: 0.875rem; margin-top: 0.25rem; display: block;"></span>
+            </div>
+
+            <div class="form-group-custom">
+                <label class="form-label-custom" asp-for="Email">Email Address</label>
+                <input asp-for="Email" type="email" class="form-control-custom" placeholder="student@example.com" required />
+                <span asp-validation-for="Email" style="color: #ff6b6b; font-size: 0.875rem; margin-top: 0.25rem; display: block;"></span>
+            </div>
+
+            <div class="form-group-custom">
+                <label class="form-label-custom" asp-for="Department">Department</label>
+                <select asp-for="Department" class="form-control-custom" required>
+                    <option value="">-- Select Department --</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Software Engineering">Software Engineering</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Cybersecurity">Cybersecurity</option>
+                    <option value="Business Administration">Business Administration</option>
+                    <option value="Accounting">Accounting</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Medicine">Medicine</option>
+                    <option value="Law">Law</option>
+                    <option value="Education">Education</option>
+                </select>
+                <span asp-validation-for="Department" style="color: #ff6b6b; font-size: 0.875rem; margin-top: 0.25rem; display: block;"></span>
+            </div>
+
+            <div class="form-group-custom">
+                <label class="form-label-custom" asp-for="YearOfStudy">Year of Study</label>
+                <select asp-for="YearOfStudy" class="form-control-custom" required>
+                    <option value="">-- Select Year --</option>
+                    <option value="1">Year 1</option>
+                    <option value="2">Year 2</option>
+                    <option value="3">Year 3</option>
+                    <option value="4">Year 4</option>
+                    <option value="5">Year 5</option>
+                </select>
+                <span asp-validation-for="YearOfStudy" style="color: #ff6b6b; font-size: 0.875rem; margin-top: 0.25rem; display: block;"></span>
+            </div>
+        </div>
+
+        <!-- Account Information -->
+        <div style="margin-top: 2rem; padding: 1.5rem; background: var(--sidebar-bg); border-radius: 10px; border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.125rem;">
+                🔐 Account Credentials
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom" for="username">Username</label>
+                    <input type="text" name="username" id="username" class="form-control-custom" placeholder="Enter username" required />
+                </div>
+
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom" for="password">Password</label>
+                    <input type="password" name="password" id="password" class="form-control-custom" placeholder="Enter password" required />
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(79, 172, 254, 0.1); border: 1px solid #4facfe; border-radius: 10px;">
+            <p style="margin: 0; color: #4facfe; font-size: 0.875rem;">
+                <strong>ℹ️ Important Information</strong><br/>
+                • The student will be able to log in using the provided username and password<br/>
+                • Make sure to provide this information to the student securely<br/>
+                • The student account will be created with "Student" role automatically
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn-custom btn-primary-custom" style="flex: 1;">
+                <span>✅</span> Create Student
+            </button>
+            <a asp-action="ManageStudents" class="btn-custom btn-outline-custom" style="flex: 1; text-align: center;">
+                <span>❌</span> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

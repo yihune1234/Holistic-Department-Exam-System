@@ -1,0 +1,93 @@
+@model HolisticDepartmentExamSystem.Controllers.ReviewAnswersViewModel
+@{
+    ViewData["Title"] = "Submission Review";
+}
+
+<div class="portal-wrapper py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1">
+                        <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Portal</a></li>
+                        <li class="breadcrumb-item active">Review</li>
+                    </ol>
+                </nav>
+                <h1 class="h3 fw-bold text-navy">Review: @Model.Attempt.Exam.Title</h1>
+            </div>
+            <a asp-action="Dashboard" class="btn btn-outline-primary rounded-pill px-4">
+                Close Review
+            </a>
+        </div>
+
+        @foreach (var answer in Model.Answers)
+        {
+            var isCorrect = answer.SelectedChoice?.IsCorrect ?? false;
+            var marksAwarded = isCorrect ? answer.Question.Marks : 0;
+            
+            <div class="glass-card mb-4 border-0 p-0 overflow-hidden shadow-sm">
+                <div class="p-4 bg-white bg-opacity-50">
+                    <div class="d-flex justify-content-between align-items-start gap-4">
+                        <div class="d-flex gap-3">
+                            <div class="bg-navy bg-opacity-10 text-navy rounded-circle d-flex align-items-center justify-content-center fw-bold" style="min-width: 40px; height: 40px;">
+                                @(Model.Answers.IndexOf(answer) + 1)
+                            </div>
+                            <div>
+                                <h5 class="fw-bold text-navy mb-0">@answer.Question.QuestionText</h5>
+                            </div>
+                        </div>
+                        <div class="text-end" style="min-width: 120px;">
+                            <span class="badge @(isCorrect ? "bg-success" : "bg-danger") bg-opacity-75 rounded-pill px-3 py-2">
+                                @(isCorrect ? "Correct" : "Incorrect") (@marksAwarded/@answer.Question.Marks pts)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-top border-light">
+                    <div class="row g-3">
+                        @foreach (var choice in answer.Question.Choices)
+                        {
+                            var isSelected = answer.SelectedChoiceId == choice.ChoiceId;
+                            var isChoiceCorrect = choice.IsCorrect;
+                            
+                            <div class="col-12">
+                                <div class="p-3 rounded-4 border @(isChoiceCorrect ? "border-success bg-success bg-opacity-10" : (isSelected ? "border-danger bg-danger bg-opacity-10" : "border-light bg-light bg-opacity-25")) d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="status-indicator">
+                                            @if (isChoiceCorrect) { <i class="bi bi-check-circle-fill text-success fs-5"></i> }
+                                            else if (isSelected) { <i class="bi bi-x-circle-fill text-danger fs-5"></i> }
+                                            else { <i class="bi bi-circle text-muted fs-5 opacity-50"></i> }
+                                        </div>
+                                        <div class="@(isSelected ? "fw-bold text-navy" : "text-muted")">
+                                            @choice.ChoiceText 
+                                            @if (isSelected) { <span class="badge bg-navy bg-opacity-10 text-navy ms-2 small" style="font-size: 0.65rem;">YOUR SELECTION</span> }
+                                        </div>
+                                    </div>
+                                    @if (isChoiceCorrect) { <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2">Correct Key</span> }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                @if (!isCorrect && answer.Question.Choices.Any(c => c.IsCorrect))
+                {
+                    <div class="p-3 bg-warning bg-opacity-10 border-top border-warning border-opacity-10">
+                        <div class="small text-warning-emphasis">
+                            <i class="bi bi-info-circle-fill me-2"></i> <strong>Key Insight:</strong> The correct answer was <strong>@answer.Question.Choices.First(c => c.IsCorrect).ChoiceText</strong>.
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="text-center mt-5">
+            <a asp-action="Dashboard" class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow">
+                Complete Review
+            </a>
+        </div>
+    </div>
+</div>
+
+

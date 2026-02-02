@@ -1,0 +1,227 @@
+@{
+    ViewData["Title"] = "Publish Results";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h2>Publish Exam Results</h2>
+        <p class="text-muted">Exam: @Model.Exam.Title</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5>Results Summary</h5>
+                    <div class="btn-group">
+                        <a asp-action="GenerateResults" asp-controller="Result" asp-route-examId="@Model.Exam.Id" 
+                           class="btn btn-primary">
+                            <i class="bi bi-calculator"></i> Generate Results
+                        </a>
+                        <button class="btn btn-success" onclick="publishAllResults()">
+                            <i class="bi bi-check-circle"></i> Publish All
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (!Model.Results.Any())
+                {
+                    <div class="alert alert-warning text-center">
+                        <h4>No Results Generated Yet</h4>
+                        <p>Generate results before publishing them to students.</p>
+                        <a asp-action="GenerateResults" asp-controller="Result" asp-route-examId="@Model.Exam.Id" 
+                           class="btn btn-primary">
+                            <i class="bi bi-calculator"></i> Generate Results Now
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="results-summary mb-4">
+                        <div class="row text-center">
+                            <div class="col-md-2">
+                                <h4 class="text-primary">@Model.Results.Count()</h4>
+                                <small class="text-muted">Total Results</small>
+                            </div>
+                            <div class="col-md-2">
+                                @{
+                                    var passedCount = 0;
+                                    foreach (var r in Model.Results) {
+                                        if (r.Percentage >= 70) passedCount++;
+                                    }
+                                }
+                                <h4 class="text-success">@passedCount</h4>
+                                <small class="text-muted">Passed (70% and above)</small>
+                            </div>
+                            <div class="col-md-2">
+                                @{
+                                    var failedCount = 0;
+                                    foreach (var r in Model.Results) {
+                                        if (r.Percentage < 70) failedCount++;
+                                    }
+                                }
+                                <h4 class="text-danger">@failedCount</h4>
+                                <small class="text-muted">Failed (below 70%)</small>
+                            </div>
+                            <div class="col-md-2">
+                                @{
+                                    double avgScore = 0;
+                                    if (Model.Results.Any()) {
+                                        double total = 0;
+                                        foreach (var r in Model.Results) {
+                                            total += r.Percentage;
+                                        }
+                                        avgScore = total / Model.Results.Count();
+                                    }
+                                }
+                                <h4 class="text-info">@avgScore.ToString("0.0")%</h4>
+                                <small class="text-muted">Average Score</small>
+                            </div>
+                            <div class="col-md-2">
+                                @{
+                                    double maxScore = 0;
+                                    foreach (var r in Model.Results) {
+                                        if (r.Percentage > maxScore) maxScore = r.Percentage;
+                                    }
+                                }
+                                <h4 class="text-warning">@maxScore.ToString("0.0")%</h4>
+                                <small class="text-muted">Highest Score</small>
+                            </div>
+                            <div class="col-md-2">
+                                @{
+                                    double minScore = 100;
+                                    if (Model.Results.Any()) {
+                                        minScore = Model.Results.First().Percentage;
+                                        foreach (var r in Model.Results) {
+                                            if (r.Percentage < minScore) minScore = r.Percentage;
+                                        }
+                                    }
+                                }
+                                <h4 class="text-secondary">@minScore.ToString("0.0")%</h4>
+                                <small class="text-muted">Lowest Score</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="selectAll" onchange="toggleAllResults()">
+                                    </th>
+                                    <th>Student</th>
+                                    <th>Student ID</th>
+                                    <th>Score</th>
+                                    <th>Percentage</th>
+                                    <th>Grade</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var result in Model.Results)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="result-checkbox" value="@result.Id" 
+                                                   @(result.IsPublished ? "checked" : "") onchange="updatePublishStatus(@result.Id)">
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                    S
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">@result.ExamAttempt.Student?.FirstName @result.ExamAttempt.Student?.LastName</div>
+                                                    <small class="text-muted">@result.ExamAttempt.Student?.Email</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><code>@result.ExamAttempt.Student?.StudentNumber</code></td>
+                                        <td>
+                                            <span class="fw-bold">@result.Score/@result.TotalPoints</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress me-2" style="width: 60px; height: 20px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         style="width: @result.Percentage%">
+                                                    </div>
+                                                </div>
+                                                <span>@result.Percentage.ToString("0.0")%</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">@result.Grade</span>
+                                        </td>
+                                        <td>
+                                            @if (result.IsPublished)
+                                            {
+                                                <span class="badge bg-success">Published</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Draft</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a asp-action="Details" asp-controller="Result" asp-route-id="@result.Id" 
+                                                   class="btn btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <button class="btn btn-outline-info" onclick="addFeedback(@result.Id)">
+                                                    <i class="bi bi-chat-quote"></i>
+                                                </button>
+                                                <button class="btn btn-outline-success" onclick="notifyStudent(@result.Id)">
+                                                    <i class="bi bi-envelope"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleAllResults() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.result-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+                updatePublishStatus(checkbox.value);
+            });
+        }
+        
+        function updatePublishStatus(resultId) {
+            console.log('Update publish status for result: ' + resultId);
+        }
+        
+        function publishAllResults() {
+            if (confirm('Publish all results to students?')) {
+                alert('All results published successfully!');
+            }
+        }
+        
+        function addFeedback(resultId) {
+            alert('Add feedback for result: ' + resultId);
+        }
+        
+        function notifyStudent(resultId) {
+            if (confirm('Send result notification to student?')) {
+                alert('Notification sent to student!');
+            }
+        }
+    </script>
+}

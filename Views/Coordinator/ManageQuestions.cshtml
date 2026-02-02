@@ -1,0 +1,132 @@
+@model HolisticDepartmentExamSystem.Models.Exam
+@{
+    ViewData["Title"] = "Manage Questions";
+    Layout = "~/Views/Shared/_CoordinatorLayout.cshtml";
+    ViewBag.ExamId = Model.ExamId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item small"><a asp-action="ExamList">Exams</a></li>
+                <li class="breadcrumb-item small"><a asp-action="ManageExam" asp-route-examId="@Model.ExamId">Control Hub</a></li>
+                <li class="breadcrumb-item small active">Questions</li>
+            </ol>
+        </nav>
+        <h2 class="h4 mb-0 fw-bold">@Model.Title: Questions</h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="GeneratePasswords" asp-route-examId="@Model.ExamId" class="btn-academic btn-academic-outline">
+            <i class="bi bi-key"></i> Passwords
+        </a>
+        <a asp-controller="Question" asp-action="Create" asp-route-examId="@Model.ExamId" class="btn-academic btn-academic-primary">
+            <i class="bi bi-plus-lg"></i> Add Question
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        @if (Model.Questions == null || !Model.Questions.Any())
+        {
+            <div class="content-card">
+                <div class="p-5 text-center">
+                    <div class="text-muted mb-3"><i class="bi bi-question-circle" style="font-size: 3rem;"></i></div>
+                    <h5>No Questions Added</h5>
+                    <p class="text-muted">Start by adding your first question to this exam.</p>
+                    <a asp-controller="Question" asp-action="Create" asp-route-examId="@Model.ExamId" class="btn-academic btn-academic-primary mt-2">Add My First Question</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="accordion academic-accordion" id="questionsAccordion">
+                @foreach (var question in Model.Questions.OrderBy(q => q.QuestionOrder))
+                {
+                    <div class="content-card mb-3 border-0">
+                        <div class="card-header bg-white border-0 py-3" id="heading-@question.QuestionId">
+                            <button class="btn btn-link w-100 text-start text-decoration-none d-flex justify-content-between align-items-center p-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@question.QuestionId">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                        @question.QuestionOrder
+                                    </div>
+                                    <span class="fw-bold text-main">@(question.QuestionText.Length > 80 ? question.QuestionText.Substring(0, 80) + "..." : question.QuestionText)</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="badge-soft badge-soft-gray">@question.Marks pts</span>
+                                    <i class="bi bi-chevron-down text-muted small"></i>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div id="collapse-@question.QuestionId" class="collapse" data-bs-parent="#questionsAccordion">
+                            <div class="card-body pt-0 px-4 pb-4">
+                                <div class="p-4 bg-light rounded-3 mb-3">
+                                    @question.QuestionText
+                                </div>
+                                <div class="options-list mb-3">
+                                    @foreach (var choice in question.Choices)
+                                    {
+                                        <div class="d-flex align-items-center gap-2 mb-2 p-2 border rounded-2 @(choice.IsCorrect ? "border-success bg-opacity-10 bg-success" : "")">
+                                            <i class="bi @(choice.IsCorrect ? "bi-check-circle-fill text-success" : "bi-circle text-muted")"></i>
+                                            <span class="@(choice.IsCorrect ? "fw-bold text-success" : "")">@choice.ChoiceText</span>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-controller="Question" asp-action="Edit" asp-route-id="@question.QuestionId" class="btn btn-sm btn-academic-outline">
+                                        <i class="bi bi-pencil me-1"></i> Edit
+                                    </a>
+                                    <form asp-controller="Question" asp-action="Delete" asp-route-id="@question.QuestionId" method="post" onsubmit="return confirm('Delete this question?');">
+                                        <button type="submit" class="btn btn-sm btn-academic-outline text-danger">
+                                            <i class="bi bi-trash me-1"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">Exam Summary</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Status</span>
+                    <span class="badge-soft badge-soft-blue">@Model.Status</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Total Questions</span>
+                    <span class="fw-bold">@(Model.Questions?.Count ?? 0)</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Total Marks</span>
+                    <span class="fw-bold text-primary">@Model.TotalMarks pts</span>
+                </div>
+                <hr />
+                @if (Model.Status == "Draft")
+                {
+                    <form asp-action="ActivateExam" asp-route-examId="@Model.ExamId" method="post">
+                        <button type="submit" class="btn-academic btn-academic-primary w-100 justify-content-center">
+                            <i class="bi bi-check2-all"></i> Publish & Activate
+                        </button>
+                    </form>
+                    <p class="small text-muted mt-2 text-center">Once activated, students can start taking the exam.</p>
+                }
+                else
+                {
+                    <a asp-action="MonitorExam" asp-route-examId="@Model.ExamId" class="btn-academic btn-academic-outline w-100 justify-content-center text-primary">
+                        <i class="bi bi-broadcast"></i> Enter Monitor Panel
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

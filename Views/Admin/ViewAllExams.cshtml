@@ -1,0 +1,144 @@
+@model List<HolisticDepartmentExamSystem.Models.Exam>
+@{
+    ViewData["Title"] = "View All Exams";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var coordinators = ViewBag.Coordinators as Dictionary<int, string> ?? new Dictionary<int, string>();
+}
+
+<div class="content-card fade-in-up">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">All System Exams</h3>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0.5rem 0 0 0;">
+                Overview of all exams across all coordinators
+            </p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Exam Title</th>
+                    <th>Coordinator</th>
+                    <th>Questions</th>
+                    <th>Attempts</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th style="text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var exam in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">@exam.Title</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    @exam.DurationMinutes min • @exam.TotalMarks marks
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge-custom badge-active">
+                                    @(coordinators.ContainsKey(exam.CreatedBy) ? coordinators[exam.CreatedBy] : "Unknown")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-custom badge-draft">
+                                    @(exam.Questions?.Count ?? 0) Questions
+                                </span>
+                            </td>
+                            <td style="color: var(--text-secondary);">
+                                @(exam.ExamAttempts?.Count ?? 0) attempts
+                            </td>
+                            <td>
+                                @if (exam.Status == "Published")
+                                {
+                                    <span class="badge-custom badge-published">Published</span>
+                                }
+                                else if (exam.Status == "Draft")
+                                {
+                                    <span class="badge-custom badge-draft">Draft</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-custom badge-closed">Closed</span>
+                                }
+                            </td>
+                            <td style="color: var(--text-secondary); font-size: 0.875rem;">
+                                @exam.CreatedAt.ToString("MMM dd, yyyy")
+                            </td>
+                            <td>
+                                <div class="action-buttons" style="justify-content: center;">
+                                    <a asp-action="ViewExamAssignments" asp-route-examId="@exam.ExamId" class="btn-custom btn-icon btn-outline-custom" title="View Assignments">
+                                        <span>👁️</span>
+                                    </a>
+                                    <a asp-action="AssignStudentToExam" asp-route-examId="@exam.ExamId" class="btn-custom btn-icon btn-info-custom" title="Assign Students">
+                                        <span>👥</span>
+                                    </a>
+
+                                    <form asp-action="@(exam.ResultsPublished ? "UnpublishResults" : "PublishResults")" asp-route-examId="@exam.ExamId" method="post" style="display: inline;">
+                                        <button type="submit" class="btn-custom btn-icon @(exam.ResultsPublished ? "btn-warning-custom" : "btn-success-custom")" title="@(exam.ResultsPublished ? "Unpublish Results" : "Publish Results")">
+                                            <span>@(exam.ResultsPublished ? "📤" : "📥")</span>
+                                        </button>
+                                    </form>
+
+                                    @if (exam.Status == "Published")
+                                    {
+                                        <form asp-action="CloseExam" asp-route-examId="@exam.ExamId" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to close this exam?');">
+                                            <button type="submit" class="btn-custom btn-danger-custom btn-icon" title="Close Exam">
+                                                <span>❌</span>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+                            <div style="font-size: 1.125rem;">No exams found</div>
+                            <div style="font-size: 0.875rem; margin-top: 0.5rem;">Exams will appear here once coordinators create them</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Exam Statistics -->
+@if (Model.Any())
+{
+    <div class="stats-grid" style="margin-top: 1.5rem;">
+        <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-label">Total Exams</div>
+            <div class="stat-value">@Model.Count</div>
+        </div>
+
+        <div class="stat-card success">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Published</div>
+            <div class="stat-value">@Model.Count(e => e.Status == "Published")</div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon">📄</div>
+            <div class="stat-label">Draft</div>
+            <div class="stat-value">@Model.Count(e => e.Status == "Draft")</div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-icon">🔒</div>
+            <div class="stat-label">Closed</div>
+            <div class="stat-value">@Model.Count(e => e.Status == "Closed")</div>
+        </div>
+    </div>
+}

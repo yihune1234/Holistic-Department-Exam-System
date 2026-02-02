@@ -1,0 +1,118 @@
+@model HolisticDepartmentExamSystem.Models.Exam
+@{
+    ViewData["Title"] = "Assign Students to Exam";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var availableStudents = ViewBag.AvailableStudents as List<HolisticDepartmentExamSystem.Models.Student> ?? new List<HolisticDepartmentExamSystem.Models.Student>();
+    var assignedStudents = ViewBag.AssignedStudents as List<HolisticDepartmentExamSystem.Models.ExamPassword> ?? new List<HolisticDepartmentExamSystem.Models.ExamPassword>();
+}
+
+<div class="fade-in">
+    <div class="card hems-card mb-4">
+        <div class="card-body">
+            <h2 class="h4 mb-2">🎓 Assign Students to Exam</h2>
+            <p class="text-muted">Exam: <strong>@Model.Title</strong></p>
+            <hr />
+            
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            <div class="row">
+                <!-- Available Students -->
+                <div class="col-md-6 border-end">
+                    <h5 class="mb-3">Available Students</h5>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Dept</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var student in availableStudents)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">@student.FullName</div>
+                                            <small class="text-muted">@student.Email</small>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark">@student.Department</span></td>
+                                        <td>
+                                            <form asp-action="AssignStudentToExam" method="post">
+                                                <input type="hidden" name="examId" value="@Model.ExamId" />
+                                                <input type="hidden" name="studentId" value="@student.StudentId" />
+                                                <button type="submit" class="btn btn-sm btn-primary">Assign ➔</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!availableStudents.Any())
+                                {
+                                    <tr><td colspan="3" class="text-center py-4">All students assigned!</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Assigned Students -->
+                <div class="col-md-6">
+                    <h5 class="mb-3">Assigned Students (@assignedStudents.Count)</h5>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var assignment in assignedStudents)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">@assignment.Student.FullName</div>
+                                            <small class="text-muted">@assignment.Student.Department</small>
+                                        </td>
+                                        <td>
+                                            @if (assignment.IsUsed)
+                                            {
+                                                <span class="badge bg-success">Started</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-info">Assigned</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <form asp-action="RemoveStudentFromExam" method="post" onsubmit="return confirm('Remove this student from the exam?');">
+                                                <input type="hidden" name="examId" value="@assignment.ExamId" />
+                                                <input type="hidden" name="studentId" value="@assignment.StudentId" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!assignedStudents.Any())
+                                {
+                                    <tr><td colspan="3" class="text-center py-4">No students assigned yet.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-white">
+            <a asp-action="ViewAllExams" class="btn btn-secondary">Back to Exams</a>
+        </div>
+    </div>
+</div>

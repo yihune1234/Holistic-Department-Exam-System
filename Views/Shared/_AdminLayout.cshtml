@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="logo">
+            <h2>HES Admin</h2>
+            <p>Holistic Exam System</p>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li>
+                <a asp-controller="Admin" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Admin" asp-action="ManageUsers" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "ManageUsers" || ViewContext.RouteData.Values["Action"]?.ToString() == "CreateUser" || ViewContext.RouteData.Values["Action"]?.ToString() == "EditUser" ? "active" : "")">
+                    <span class="icon">👥</span>
+                    <span>Manage Users</span>
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Admin" asp-action="ManageStudents" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "ManageStudents" || ViewContext.RouteData.Values["Action"]?.ToString() == "CreateStudent" || ViewContext.RouteData.Values["Action"]?.ToString() == "EditStudent" ? "active" : "")">
+                    <span class="icon">🎓</span>
+                    <span>Manage Students</span>
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Admin" asp-action="ManageCoordinators" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "ManageCoordinators" ? "active" : "")">
+                    <span class="icon">👨‍🏫</span>
+                    <span>Manage Coordinators</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="Admin" asp-action="SystemReports" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "SystemReports" ? "active" : "")">
+                    <span class="icon">📊</span>
+                    <span>System Reports</span>
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Admin" asp-action="ActivityLogs" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "ActivityLogs" ? "active" : "")">
+                    <span class="icon">🕵️</span>
+                    <span>Activity Logs</span>
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Admin" asp-action="SystemSettings" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "SystemSettings" ? "active" : "")">
+                    <span class="icon">⚙️</span>
+                    <span>System Settings</span>
+                </a>
+            </li>
+            <li>
+                <form asp-controller="Account" asp-action="Logout" method="post" style="margin: 0;">
+                    <button type="submit" class="sidebar-logout-btn">
+                        <span class="icon">🚪</span>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-header">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-link text-white p-0 d-lg-none" id="sidebar-toggle" style="font-size: 1.5rem;">
+                    ☰
+                </button>
+                <h1>@ViewData["Title"]</h1>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3">
+                <div class="user-info">
+                    <div>
+                        <p style="margin: 0; font-size: 0.875rem; color: var(--text-secondary);">Welcome back,</p>
+                        <p style="margin: 0; font-weight: 600;">@User.Identity.Name</p>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="btn p-0 border-0 d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                        <div class="user-avatar">
+                            @User.Identity.Name?.Substring(0, 1).ToUpper()
+                        </div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item text-danger py-2">
+                                    <span class="icon me-2">🚪</span> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert" style="background: rgba(46, 213, 115, 0.2); border: 1px solid #2ed573; color: #2ed573; border-radius: 10px;">
+                ✅ @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 10px;">
+                ❌ @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(function () {
+             // Toggle sidebar on mobile
+             $("#sidebar-toggle").on("click", function () {
+                 $("body").toggleClass("sidebar-open");
+             });
+ 
+             // Close sidebar when clicking overlay
+             $("#sidebar-overlay").on("click", function () {
+                 $("body").removeClass("sidebar-open");
+             });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

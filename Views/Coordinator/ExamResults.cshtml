@@ -1,0 +1,148 @@
+@model HolisticDepartmentExamSystem.Models.Exam
+@{
+    ViewData["Title"] = "Exam Results";
+    Layout = "~/Views/Shared/_CoordinatorLayout.cshtml";
+    ViewBag.ExamId = Model.ExamId;
+    var results = Model.ExamAttempts.Select(ea => ea.Result).Where(r => r != null).ToList();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item small"><a asp-action="ExamList">Exams</a></li>
+                <li class="breadcrumb-item small"><a asp-action="ManageExam" asp-route-examId="@Model.ExamId">Control Hub</a></li>
+                <li class="breadcrumb-item small active">Results</li>
+            </ol>
+        </nav>
+        <h2 class="h4 mb-0 fw-bold">Performance Reports: @Model.Title</h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="ExportResults" asp-route-examId="@Model.ExamId" class="btn-academic btn-academic-outline">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+@if (!results.Any())
+{
+    <div class="content-card">
+        <div class="p-5 text-center">
+            <div class="text-muted mb-3"><i class="bi bi-graph-down" style="font-size: 3.5rem;"></i></div>
+            <h4>No Results Data Available</h4>
+            <p class="text-muted">Results will appear here once students submit their exams and the grading is processed.</p>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Overview Stats Bar -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-header">
+                <span class="stat-label">Total Submissions</span>
+                <div class="stat-icon"><i class="bi bi-person-check"></i></div>
+            </div>
+            <div class="stat-value">@results.Count</div>
+            <div class="stat-sub">Completed attempts</div>
+        </div>
+
+        <div class="stat-card green">
+            <div class="stat-header">
+                <span class="stat-label">Pass Rate</span>
+                <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+            </div>
+            @{
+                var passRate = (results.Count(r => r.PassStatus == "Pass") * 100.0 / results.Count).ToString("F1");
+            }
+            <div class="stat-value">@passRate%</div>
+            <div class="stat-sub">@results.Count(r => r.PassStatus == "Pass") students passed</div>
+        </div>
+
+        <div class="stat-card orange">
+            <div class="stat-header">
+                <span class="stat-label">Average Score</span>
+                <div class="stat-icon"><i class="bi bi-calculator"></i></div>
+            </div>
+            @{
+                double avgScore = results.Average(r => r.TotalScore);
+                double avgPercent = (avgScore / (Model.TotalMarks > 0 ? Model.TotalMarks : 1)) * 100;
+            }
+            <div class="stat-value">@avgPercent.ToString("F1")%</div>
+            <div class="stat-sub">Avg: @avgScore.ToString("F1") / @Model.TotalMarks</div>
+        </div>
+
+        <div class="stat-card red">
+            <div class="stat-header">
+                <span class="stat-label">Failure Rate</span>
+                <div class="stat-icon"><i class="bi bi-exclamation-octagon"></i></div>
+            </div>
+            @{
+                var failRate = (results.Count(r => r.PassStatus == "Fail") * 100.0 / results.Count).ToString("F1");
+            }
+            <div class="stat-value">@failRate%</div>
+            <div class="stat-sub">@results.Count(r => r.PassStatus == "Fail") students failed</div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">Detailed Student Performance</h3>
+            <div class="input-group input-group-sm" style="width: 200px;">
+                <input type="text" class="form-control" placeholder="Search student...">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Student Full Name</th>
+                        <th>Score Obtained</th>
+                        <th>Percentage</th>
+                        <th>Grade</th>
+                        <th>Outcome</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var result in results.OrderByDescending(r => r.TotalScore))
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@result.Attempt.Student.FullName</div>
+                                <div class="text-muted small">ID: @result.Attempt.Student.StudentId</div>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-main">@result.TotalScore</span> / <span class="text-muted">@Model.TotalMarks</span>
+                            </td>
+                            <td>
+                                @{
+                                    double percent = (double)result.TotalScore / (Model.TotalMarks > 0 ? Model.TotalMarks : 1) * 100;
+                                }
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 6px;">
+                                        <div class="progress-bar @(percent >= 50 ? "bg-success" : "bg-danger")" style="width: @percent%"></div>
+                                    </div>
+                                    <span class="small fw-bold">@percent.ToString("F0")%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge-soft badge-soft-blue px-3">@result.Grade</span>
+                            </td>
+                            <td>
+                                @if (result.PassStatus == "Pass")
+                                {
+                                    <span class="badge rounded-pill bg-success px-3" style="font-size: 0.7rem;">PASSED</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-danger px-3" style="font-size: 0.7rem;">FAILED</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

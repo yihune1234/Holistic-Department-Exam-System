@@ -1,0 +1,110 @@
+@model IEnumerable<HolisticDepartmentExamSystem.Models.Exam>
+@{
+    ViewData["Title"] = "Available Exams";
+    // Filter to show only assigned exams
+    var studentId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+    var assignedExams = Model.Where(e => e.ExamPasswords != null && e.ExamPasswords.Any(p => p.StudentId == studentId)).ToList();
+}
+
+<div class="portal-wrapper py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="display-5 fw-bold text-navy">Examination Hall</h1>
+                <p class="text-muted lead mb-0">Browse and participate in your assigned examinations.</p>
+            </div>
+            <a asp-action="Dashboard" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+        </div>
+
+        @if (!assignedExams.Any())
+        {
+            <div class="glass-card text-center p-5">
+                <div class="mb-4">
+                    <i class="bi bi-journal-x display-1 text-muted opacity-25"></i>
+                </div>
+                <h3 class="fw-bold text-navy">No Assigned Exams</h3>
+                <p class="text-muted">There are currently no examinations assigned to your account.</p>
+                <div class="mt-4">
+                    <button class="btn btn-primary rounded-pill px-5 py-3 shadow" onclick="location.reload()">
+                        Refresh Catalog
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var exam in assignedExams)
+                {
+                    var studentPassword = exam.ExamPasswords?.FirstOrDefault(p => p.StudentId == studentId);
+                    <div class="col-lg-6">
+                        <div class="exam-item-card glass-card h-100 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                <div>
+                                    <span class="badge @(exam.Status == "Active" ? "bg-success" : "bg-primary") bg-opacity-10 text-@(exam.Status == "Active" ? "success" : "primary") rounded-pill px-3 py-2 mb-2">
+                                        <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> @exam.Status
+                                    </span>
+                                    <h3 class="fw-bold text-navy mt-2">@exam.Title</h3>
+                                </div>
+                                <div class="exam-icon-box bg-white rounded-4 p-3 shadow-sm">
+                                    <i class="bi bi-journal-text fs-2 text-primary"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="instructions-section mb-4 flex-grow-1">
+                                <h6 class="fw-bold text-navy small text-uppercase mb-3"><i class="bi bi-info-circle me-2"></i>Session Instructions</h6>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var line in (exam.Description ?? "No specific instructions provided for this session.").Split(new[] { '.', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                                    {
+                                        <li class="d-flex align-items-start mb-2 small text-muted">
+                                            <i class="bi bi-check2-circle text-primary me-2 mt-1"></i>
+                                            <span>@line.Trim()</span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            
+                            <div class="exam-meta-grid row g-0 border-top border-light pt-4 mb-4">
+                                <div class="col-6 border-end border-light text-center py-2">
+                                    <div class="small text-muted mb-1">Duration</div>
+                                    <div class="fw-bold text-navy">@exam.DurationMinutes Mins</div>
+                                </div>
+                                <div class="col-6 text-center py-2">
+                                    <div class="small text-muted mb-1">Total Marks</div>
+                                    <div class="fw-bold text-navy">@exam.TotalMarks Pts</div>
+                                </div>
+                            </div>
+
+                            @if (exam.Status == "Active" && studentPassword != null)
+                            {
+                                <div class="access-code-box p-3 rounded-4 mb-4 text-center" style="background: rgba(255,255,255,0.4);">
+                                    <div class="small text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.7rem;">Your Access Key</div>
+                                    <div class="h4 fw-bold text-primary mb-0" style="letter-spacing: 3px;">@studentPassword.PasswordHash</div>
+                                </div>
+                            }
+
+                            <div class="mt-auto">
+                                @if (exam.Status == "Active")
+                                {
+                                    <a asp-action="EnterPassword" asp-route-examId="@exam.ExamId" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold">
+                                        <i class="bi bi-door-open-fill me-2"></i> Join Examination
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-secondary btn-lg w-100 rounded-pill py-3 fw-bold disabled border-0 bg-opacity-10 text-muted" style="background: rgba(0,0,0,0.05);">
+                                        <i class="bi bi-clock-history me-2"></i> Scheduled to Open
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+

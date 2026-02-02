@@ -1,0 +1,141 @@
+@model List<HolisticDepartmentExamSystem.Models.ActivityLog>
+@{
+    ViewData["Title"] = "Activity Logs";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-card fade-in-up">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">System Activity Logs</h3>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0.5rem 0 0 0;">
+                Monitor user activities and detect suspicious behavior
+            </p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <span class="badge-custom badge-active">Last 100 Activities</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Timestamp</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var log in Model)
+                    {
+                        var isSuspicious = log.Action.Contains("failed", StringComparison.OrdinalIgnoreCase) || 
+                                          log.Action.Contains("suspicious", StringComparison.OrdinalIgnoreCase);
+                        
+                        <tr style="@(isSuspicious ? "background: rgba(255, 107, 107, 0.1) !important;" : "")">
+                            <td>
+                                <div style="font-weight: 600;">
+                                    @(log.User?.Username ?? "System")
+                                </div>
+                                @if (log.User?.Role != null)
+                                {
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                        @log.User.Role.RoleName
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @if (isSuspicious)
+                                {
+                                    <span style="color: #ff6b6b;">⚠️ @log.Action</span>
+                                }
+                                else if (log.Action.Contains("Login", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span style="color: #2ed573;">✅ @log.Action</span>
+                                }
+                                else if (log.Action.Contains("created", StringComparison.OrdinalIgnoreCase) || 
+                                         log.Action.Contains("added", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span style="color: #4facfe;">➕ @log.Action</span>
+                                }
+                                else if (log.Action.Contains("deleted", StringComparison.OrdinalIgnoreCase) || 
+                                         log.Action.Contains("removed", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span style="color: #ff9f43;">🗑️ @log.Action</span>
+                                }
+                                else
+                                {
+                                    <span>@log.Action</span>
+                                }
+                            </td>
+                            <td style="color: var(--text-secondary); font-size: 0.875rem;">
+                                @log.Timestamp.ToString("MMM dd, yyyy hh:mm:ss tt")
+                            </td>
+                            <td>
+                                <code style="background: var(--sidebar-bg); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
+                                    @(log.IpAddress ?? "N/A")
+                                </code>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🕵️</div>
+                            <div style="font-size: 1.125rem;">No activity logs found</div>
+                            <div style="font-size: 0.875rem; margin-top: 0.5rem;">Activity logs will appear here as users interact with the system</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Activity Statistics -->
+@if (Model.Any())
+{
+    <div class="stats-grid" style="margin-top: 1.5rem;">
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-label">Total Activities</div>
+            <div class="stat-value">@Model.Count</div>
+        </div>
+
+        <div class="stat-card success">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Successful Logins</div>
+            <div class="stat-value">@Model.Count(l => l.Action.Contains("Login", StringComparison.OrdinalIgnoreCase) && !l.Action.Contains("failed", StringComparison.OrdinalIgnoreCase))</div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-label">Suspicious Activity</div>
+            <div class="stat-value">@Model.Count(l => l.Action.Contains("failed", StringComparison.OrdinalIgnoreCase) || l.Action.Contains("suspicious", StringComparison.OrdinalIgnoreCase))</div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-icon">🕐</div>
+            <div class="stat-label">Last 24 Hours</div>
+            <div class="stat-value">@Model.Count(l => l.Timestamp > DateTime.Now.AddHours(-24))</div>
+        </div>
+    </div>
+
+    <!-- Security Alert -->
+    @if (Model.Any(l => l.Action.Contains("failed", StringComparison.OrdinalIgnoreCase) || l.Action.Contains("suspicious", StringComparison.OrdinalIgnoreCase)))
+    {
+        <div class="content-card" style="margin-top: 1.5rem; background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b;">
+            <div style="padding: 1rem;">
+                <h4 style="color: #ff6b6b; margin-bottom: 0.5rem;">⚠️ Security Alert</h4>
+                <p style="margin: 0; color: var(--text-secondary);">
+                    Suspicious activities detected. Please review the highlighted entries and take appropriate action if necessary.
+                </p>
+            </div>
+        </div>
+    }
+}

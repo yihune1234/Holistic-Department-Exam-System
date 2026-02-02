@@ -1,0 +1,255 @@
+@model HolisticDepartmentExamSystem.Controllers.SystemReportsViewModel
+@{
+    ViewData["Title"] = "System Reports";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Key Metrics -->
+<div class="stats-grid fade-in-up">
+    <div class="stat-card">
+        <div class="stat-icon">🎓</div>
+        <div class="stat-label">Total Students</div>
+        <div class="stat-value">@Model.TotalStudents</div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-icon">📝</div>
+        <div class="stat-label">Total Exams</div>
+        <div class="stat-value">@Model.TotalExams</div>
+    </div>
+
+    <div class="stat-card info">
+        <div class="stat-icon">📊</div>
+        <div class="stat-label">Total Attempts</div>
+        <div class="stat-value">@Model.TotalAttempts</div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-icon">✅</div>
+        <div class="stat-label">Completed</div>
+        <div class="stat-value">@Model.CompletedAttempts</div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+    <!-- Average Score & Pass Rate -->
+    <div class="content-card fade-in-up">
+        <div class="card-header">
+            <h3 class="card-title">Performance Overview</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 1rem;">
+            <div style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: 700; background: var(--success-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    @Model.AverageScore.ToString("F1")%
+                </div>
+                <div style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">Average Score</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: 700; background: var(--info-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    @Model.PassRate.ToString("F1")%
+                </div>
+                <div style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">Pass Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grade Distribution -->
+    <div class="content-card fade-in-up">
+        <div class="card-header">
+            <h3 class="card-title">Grade Distribution</h3>
+        </div>
+        <div style="padding: 1rem;">
+            @{
+                var totalGrades = Model.GradeA + Model.GradeB + Model.GradeC + Model.GradeD + Model.GradeF;
+            }
+            @if (totalGrades > 0)
+            {
+                <!-- Grade A -->
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">Grade A</span>
+                        <span style="color: var(--text-secondary);">@Model.GradeA (@((Model.GradeA * 100.0 / totalGrades).ToString("F1"))%)</span>
+                    </div>
+                    <div style="background: var(--sidebar-bg); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--success-gradient); height: 100%; width: @((Model.GradeA * 100.0 / totalGrades).ToString("F1"))%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- Grade B -->
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">Grade B</span>
+                        <span style="color: var(--text-secondary);">@Model.GradeB (@((Model.GradeB * 100.0 / totalGrades).ToString("F1"))%)</span>
+                    </div>
+                    <div style="background: var(--sidebar-bg); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--info-gradient); height: 100%; width: @((Model.GradeB * 100.0 / totalGrades).ToString("F1"))%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- Grade C -->
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">Grade C</span>
+                        <span style="color: var(--text-secondary);">@Model.GradeC (@((Model.GradeC * 100.0 / totalGrades).ToString("F1"))%)</span>
+                    </div>
+                    <div style="background: var(--sidebar-bg); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--warning-gradient); height: 100%; width: @((Model.GradeC * 100.0 / totalGrades).ToString("F1"))%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- Grade D -->
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">Grade D</span>
+                        <span style="color: var(--text-secondary);">@Model.GradeD (@((Model.GradeD * 100.0 / totalGrades).ToString("F1"))%)</span>
+                    </div>
+                    <div style="background: var(--sidebar-bg); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: linear-gradient(135deg, #ffa502 0%, #ff6348 100%); height: 100%; width: @((Model.GradeD * 100.0 / totalGrades).ToString("F1"))%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- Grade F -->
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">Grade F</span>
+                        <span style="color: var(--text-secondary);">@Model.GradeF (@((Model.GradeF * 100.0 / totalGrades).ToString("F1"))%)</span>
+                    </div>
+                    <div style="background: var(--sidebar-bg); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--danger-gradient); height: 100%; width: @((Model.GradeF * 100.0 / totalGrades).ToString("F1"))%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No grade data available yet</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Recent Exams & Top Students -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+    <!-- Recent Exams -->
+    <div class="content-card fade-in-up">
+        <div class="card-header">
+            <h3 class="card-title">Recent Exams</h3>
+            <a asp-action="ViewAllExams" class="btn-custom btn-outline-custom btn-icon">
+                <span>👁️</span>
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.RecentExams.Any())
+                    {
+                        @foreach (var exam in Model.RecentExams.Take(5))
+                        {
+                            <tr>
+                                <td style="font-weight: 600;">@exam.Title</td>
+                                <td>
+                                    @if (exam.Status == "Published")
+                                    {
+                                        <span class="badge-custom badge-published">Published</span>
+                                    }
+                                    else if (exam.Status == "Draft")
+                                    {
+                                        <span class="badge-custom badge-draft">Draft</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-custom badge-closed">Closed</span>
+                                    }
+                                </td>
+                                <td style="color: var(--text-secondary); font-size: 0.875rem;">
+                                    @exam.CreatedAt.ToString("MMM dd")
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                No exams yet
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Performing Students -->
+    <div class="content-card fade-in-up">
+        <div class="card-header">
+            <h3 class="card-title">Top Performers</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Student</th>
+                        <th>Score</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.TopStudents.Any())
+                    {
+                        int rank = 1;
+                        @foreach (var result in Model.TopStudents.Take(5))
+                        {
+                            <tr>
+                                <td>
+                                    @if (rank == 1)
+                                    {
+                                        <span style="font-size: 1.25rem;">🥇</span>
+                                    }
+                                    else if (rank == 2)
+                                    {
+                                        <span style="font-size: 1.25rem;">🥈</span>
+                                    }
+                                    else if (rank == 3)
+                                    {
+                                        <span style="font-size: 1.25rem;">🥉</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="font-weight: 600;">#@rank</span>
+                                    }
+                                </td>
+                                <td style="font-weight: 600;">
+                                    @(result.Attempt?.Student?.FullName ?? "N/A")
+                                </td>
+                                <td style="color: var(--text-secondary);">
+                                    @result.TotalScore.ToString("F1")%
+                                </td>
+                                <td>
+                                    <span class="badge-custom badge-published">@result.Grade</span>
+                                </td>
+                            </tr>
+                            rank++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                No results yet
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

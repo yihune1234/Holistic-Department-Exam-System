@@ -1,0 +1,108 @@
+@model HolisticDepartmentExamSystem.Models.Exam
+@{
+    ViewData["Title"] = "Exam Assignments";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-card fade-in-up">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            <h3 class="card-title">Exam Assignments</h3>
+            <p class="text-muted small mb-0">Managing students for session: <strong>@Model.Title</strong></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="AssignStudentToExam" asp-route-examId="@Model.ExamId" class="btn-custom btn-primary-custom">
+                <span>➕</span> Add Students
+            </a>
+            <a asp-action="ViewAllExams" class="btn-custom btn-outline-custom">
+                <span>🔙</span> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-4">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Access Key</th>
+                    <th style="text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ExamPasswords.Any())
+                {
+                    @foreach (var assignment in Model.ExamPasswords)
+                    {
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">@assignment.Student?.FullName</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">@assignment.Student?.Email</div>
+                            </td>
+                            <td>
+                                <span class="badge-custom badge-draft">@assignment.Student?.Department</span>
+                            </td>
+                            <td>
+                                @if (assignment.IsUsed)
+                                {
+                                    <span class="badge-custom badge-published">Started/Used</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-custom badge-active">Assigned</span>
+                                }
+                            </td>
+                            <td>
+                                <code class="text-primary">@(string.IsNullOrEmpty(assignment.PasswordHash) ? "Auto-Generated" : assignment.PasswordHash)</code>
+                            </td>
+                            <td>
+                                <div class="action-buttons" style="justify-content: center;">
+                                    <form asp-action="RemoveStudentFromExam" method="post" onsubmit="return confirm('Revoke this student\'s access to the exam?');">
+                                        <input type="hidden" name="examId" value="@Model.ExamId" />
+                                        <input type="hidden" name="studentId" value="@assignment.StudentId" />
+                                        <button type="submit" class="btn-custom btn-danger-custom btn-icon" title="Remove Assignment">
+                                            <span>🗑️</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+                            <div style="font-size: 1.125rem;">No students assigned yet</div>
+                            <div style="font-size: 0.875rem; margin-top: 0.5rem;">Click 'Add Students' to begin assigning candidates to this session.</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (Model.ExamPasswords.Any())
+{
+    <div class="stats-grid mt-4">
+        <div class="stat-card info">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Total Assigned</div>
+            <div class="stat-value">@Model.ExamPasswords.Count</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-icon">🏁</div>
+            <div class="stat-label">Sessions Started</div>
+            <div class="stat-value">@Model.ExamPasswords.Count(p => p.IsUsed)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🔑</div>
+            <div class="stat-label">Pending Access</div>
+            <div class="stat-value">@Model.ExamPasswords.Count(p => !p.IsUsed)</div>
+        </div>
+    </div>
+}

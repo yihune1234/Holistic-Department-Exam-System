@@ -1,0 +1,737 @@
+@model HolisticDepartmentExamSystem.Controllers.ExamMonitorViewModel
+@{
+    ViewData["Title"] = "Exam Control Panel";
+    Layout = null; // We'll make it a standalone premium page
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f7fa;
+            --panel-bg: #eceef1;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            --header-bg: #2b579a;
+            --success-color: #5cb85c;
+            --warning-color: #f0ad4e;
+            --danger-color: #d9534f;
+            --info-color: #428bca;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .header-bar {
+            background-color: var(--header-bg);
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .top-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .control-box {
+            background: white;
+            border: 1px solid #d1d9e1;
+            border-radius: 4px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .box-title {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e1e8ef;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2c3e50;
+            background: #fdfdfd;
+        }
+
+        .box-content {
+            padding: 20px;
+        }
+
+        /* Exam Status UI */
+        .status-header {
+            background: #f8f9fb;
+            border: 1px solid #e1e8ef;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-dot {
+            width: 24px;
+            height: 24px;
+            background: var(--success-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .status-text {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .status-bar {
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            height: 45px;
+            margin-bottom: 20px;
+        }
+
+        .status-label {
+            background: #4a86e8;
+            color: white;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            flex-grow: 1;
+        }
+
+        .time-left {
+            background: #6fa8dc;
+            color: white;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            min-width: 160px;
+        }
+
+        .alert-confirm {
+            background: #fcfcfc;
+            border: 1px solid #e1e8ef;
+            border-radius: 8px;
+            padding: 0;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        }
+
+        .alert-top {
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .alert-icon {
+            font-size: 2rem;
+            color: var(--warning-color);
+        }
+
+        .alert-body h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .alert-body p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .alert-footer {
+            background: #f5f7f9;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #e1e8ef;
+        }
+
+        .btn-panel {
+            padding: 6px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel { background: #eff2f5; color: #333; }
+        .btn-confirm-red { background: var(--danger-color); color: white; border-color: #b92c28; }
+
+        /* Control Panel Buttons */
+        .panel-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ctrl-btn {
+            width: 100%;
+            height: 42px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.15);
+            transition: transform 0.1s;
+        }
+
+        .ctrl-btn:active { transform: translateY(2px); box-shadow: none; }
+
+        .btn-gen { background: var(--success-color); }
+        .btn-act { background: var(--warning-color); }
+        .btn-pause { background: var(--danger-color); }
+        .btn-close { background: var(--info-color); }
+
+        .form-checks {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e8ef;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            color: #444;
+        }
+
+        .check-item i { color: var(--success-color); font-size: 1.2rem; }
+        .check-item i.bi-check-square-fill { color: var(--danger-color); }
+
+        /* Monitoring Dashboard */
+        .monitoring-box {
+            background: white;
+            border: 1px solid #d1d9e1;
+            border-radius: 4px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stats-tabs {
+            background: #f8f9fb;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e1e8ef;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .stat-tab {
+            padding: 8px 15px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 3px solid rgba(0,0,0,0.1);
+        }
+
+        .tab-total { background: #5187ca; }
+        .tab-log { background: #5cb85c; }
+        .tab-ready { background: #7cc576; }
+        .tab-exam { background: #4a86e8; }
+        .tab-submit { background: #d9534f; }
+
+        .tab-count {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        /* Monitoring Table */
+        .table-container {
+            padding: 0;
+        }
+
+        .monitor-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .monitor-table th {
+            background: #e9edf1;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 1px solid #d1d9e1;
+        }
+
+        .monitor-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f4f7;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .badge-active { padding: 4px 10px; background: #5cb85c; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .badge-danger { padding: 4px 10px; background: #d9534f; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .badge-warn { padding: 4px 10px; background: var(--warning-color); color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .badge-info { padding: 4px 10px; background: #5bc0de; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+
+        .time-cell { font-weight: 700; color: #2c3e50; }
+        .time-remaining { font-weight: 500; color: #444; }
+
+        /* Sparkline Visualization */
+        .spark-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 25px;
+        }
+        .spark-bar {
+            width: 5px;
+            background: #d1d9e1;
+            border-radius: 1px;
+        }
+        .spark-bar.filled { background: #a6bace; }
+        .spark-bar.current { background: #4a86e8; }
+        .spark-bar.warn { background: #d9534f; }
+
+        /* Pagination */
+        .pagination-container {
+            padding: 15px 20px;
+            border-top: 1px solid #e1e8ef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafbfc;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 5px;
+        }
+
+        .page-btn {
+            border: 1px solid #d1d9e1;
+            background: white;
+            padding: 5px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .page-btn.active { background: #4a86e8; color: white; border-color: #4a86e8; }
+        .page-btn.next { padding: 5px 15px; font-weight: 600; }
+
+        /* Confirmation Popover Arrow */
+        .alert-confirm::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 20%;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-left: 1px solid #e1e8ef;
+            border-top: 1px solid #e1e8ef;
+            transform: rotate(45deg);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 15px;
+            left: 20px;
+            z-index: 1000;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .logout-fixed {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .logout-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .logout-link:hover {
+            color: #fff;
+        }
+
+        /* Responsive Styles */
+        @@media (max-width: 992px) {
+            .top-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-container {
+                padding: 0 10px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .header-bar {
+                font-size: 1.2rem;
+                padding: 10px 0;
+            }
+
+            .back-btn span, .logout-link span {
+                display: none;
+            }
+
+            .stats-tabs {
+                gap: 5px;
+            }
+
+            .stat-tab {
+                flex: 1 1 calc(50% - 5px);
+                justify-content: space-between;
+                font-size: 0.8rem;
+                padding: 8px 10px;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .monitor-table th, .monitor-table td {
+                padding: 10px;
+                white-space: nowrap;
+            }
+            
+            .status-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .status-label, .time-left {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/Coordinator/Dashboard" class="back-btn"><i class="bi bi-chevron-left"></i> Hub</a>
+    
+    <div class="logout-fixed">
+        <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+            <a href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit()" class="logout-link">
+                <i class="bi bi-box-arrow-right"></i> Sign Out
+            </a>
+        </form>
+    </div>
+    
+    <div class="header-bar">
+        Exam Control Panel
+    </div>
+
+    <div class="main-container">
+        <div class="top-row">
+            <!-- Left: Exam Status -->
+            <div class="control-box">
+                <div class="box-title">Exam Status:</div>
+                <div class="box-content">
+                    <div class="status-header">
+                        <div class="status-dot"><i class="bi bi-check"></i></div>
+                        <div class="status-text">Exam: <span style="color: #27ae60;">In Progress</span></div>
+                    </div>
+
+                    <div class="status-bar">
+                        <div class="status-label">Status: &nbsp; In Progress</div>
+                        <div class="time-left">Time Left: &nbsp; <span id="timeLeft">00:00:00</span></div>
+                    </div>
+
+                    <div class="alert-confirm" id="closeConfirmation" style="display:none;">
+                        <div class="alert-top">
+                            <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+                            <div class="alert-body">
+                                <h4>Are you sure you want to close the exam?</h4>
+                                <p>This will mark the exam as completed and lock access for all students.</p>
+                            </div>
+                        </div>
+                        <div class="alert-footer">
+                            <button class="btn-panel btn-cancel" onclick="toggleCloseConfirm(false)">Cancel</button>
+                            <form asp-action="CloseExam" method="post" style="display:inline;">
+                                <input type="hidden" name="examId" value="@Model.Exam.ExamId" />
+                                <button type="submit" class="btn-panel btn-confirm-red">Close Exam</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Action Panel -->
+            <div class="control-box">
+                <div class="box-title">Exam Control Panel</div>
+                <div class="box-content">
+                    <div class="panel-grid">
+                        <form asp-action="GeneratePasswords" method="post">
+                            <input type="hidden" name="examId" value="@Model.Exam.ExamId" />
+                            <button type="submit" class="ctrl-btn btn-gen">Generate Passwords</button>
+                        </form>
+
+                        @if (Model.Exam.Status != "Active")
+                        {
+                            <form asp-action="ActivateExam" method="post">
+                                <input type="hidden" name="examId" value="@Model.Exam.ExamId" />
+                                <button type="submit" class="ctrl-btn btn-act">Activate Exam</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="PauseExam" method="post">
+                                <input type="hidden" name="examId" value="@Model.Exam.ExamId" />
+                                <button type="submit" class="ctrl-btn btn-pause">Pause Exam</button>
+                            </form>
+                        }
+
+                        <button type="button" class="ctrl-btn btn-close" onclick="toggleCloseConfirm(true)">Close Exam</button>
+                    </div>
+
+                    <div class="form-checks">
+                        <div class="check-item">
+                            <i class="bi bi-check-lg"></i>
+                            <span><strong>Status Indicator:</strong> Visible at all times</span>
+                        </div>
+                        <div class="check-item">
+                            <i class="bi bi-check-square-fill"></i>
+                            <span>Confirmation Before Closing Exam</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitoring Dashboard -->
+        <div class="monitoring-box">
+            <div class="box-title">Student Monitoring Dashboard</div>
+            
+            <div class="stats-tabs">
+                <div class="stat-tab tab-total">Total Registered <span class="tab-count">@Model.TotalAssigned</span></div>
+                <div class="stat-tab tab-log">Logged In <span class="tab-count">@Model.LoggedInCount</span></div>
+                <div class="stat-tab tab-ready">Ready <span class="tab-count">@Model.StartedCount</span></div>
+                <div class="stat-tab tab-exam">In Exam <span class="tab-count">@Model.InProgressCount</span></div>
+                <div class="stat-tab tab-submit">Submitted <span class="tab-count">@Model.SubmittedCount</span></div>
+            </div>
+
+            <div class="table-container">
+                <table class="monitor-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Connection</th>
+                            <th>Live Status</th>
+                            <th>Started</th>
+                            <th>Remaining</th>
+                            <th>Progress</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentMonitorBody">
+                        @foreach (var student in Model.StudentActivities)
+                        {
+                            <tr>
+                                <td style="color: #444; font-weight: 500;">@student.FullName</td>
+                                <td>
+                                    @if(student.IsLoggedIn) {
+                                        <span class="badge-active">Online</span>
+                                    } else {
+                                        <span class="badge-info">Offline</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (student.IsBlocked)
+                                    {
+                                        <span class="badge-danger">BLOCKED</span>
+                                    }
+                                    else if (student.LatestActivity == "Tab Switched / Minimised")
+                                    {
+                                        <span class="badge-danger">Tab Switched</span>
+                                    }
+                                    else if (student.LatestActivity == "Active" || student.LatestActivity == "Started Exam" || student.LatestActivity == "Returned to Exam")
+                                    {
+                                        <span class="badge-active">@student.LatestActivity</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-warn">@student.LatestActivity</span>
+                                    }
+                                </td>
+                                <td class="time-cell">@(student.StartTime?.ToString("hh:mm tt") ?? "--:--")</td>
+                                <td class="time-remaining">@(student.Status == "Submitted" ? "00:00" : student.DurationUsed)</td>
+                                <td>
+                                    <div class="spark-container">
+                                        @for(int i=0; i<10; i++) {
+                                            var height = 5 + (i * 2);
+                                            var isFilled = (student.Status == "Submitted") || (i < 6);
+                                            var isWarn = (student.LatestActivity == "Tab Switched / Minimised");
+                                            <div class="spark-bar @(isFilled ? "filled" : "") @(isWarn ? "warn" : "")" style="height: @(height)px;"></div>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (student.AttemptId > 0)
+                                    {
+                                        <form asp-action="@(student.IsBlocked ? "UnblockStudent" : "BlockStudent")" method="post" style="display:inline;">
+                                            <input type="hidden" name="attemptId" value="@student.AttemptId" />
+                                            <input type="hidden" name="examId" value="@Model.Exam.ExamId" />
+                                            <button type="submit" class="btn btn-sm @(student.IsBlocked ? "btn-success" : "btn-danger")" style="font-size: 0.7rem; padding: 2px 8px;">
+                                                @(student.IsBlocked ? "Unblock" : "Block")
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-container">
+                <div class="small text-muted" id="entriesCount">Showing 1 to @Model.StudentActivities.Count of @Model.TotalAssigned entries</div>
+                <div class="pagination">
+                    <div class="page-btn"><i class="bi bi-chevron-left"></i> Previous</div>
+                    <div class="page-btn active">1</div>
+                    <div class="page-btn next">Next <i class="bi bi-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        function toggleCloseConfirm(show) {
+            document.getElementById('closeConfirmation').style.display = show ? 'block' : 'none';
+        }
+
+        // Timer
+        let timeLeft = @(Model.Exam.DurationMinutes * 60);
+        function updateTimer() {
+            if (timeLeft <= 0) return;
+            let h = Math.floor(timeLeft / 3600);
+            let m = Math.floor((timeLeft % 3600) / 60);
+            let s = timeLeft % 60;
+            document.getElementById('timeLeft').innerText = 
+                String(h).padStart(2, '0') + ":" + 
+                String(m).padStart(2, '0') + ":" + 
+                String(s).padStart(2, '0');
+            timeLeft--;
+        }
+        setInterval(updateTimer, 1000);
+
+        // Real-time Refresh
+        function refreshStats() {
+            $.get("/Coordinator/GetMonitorStats?examId=@Model.Exam.ExamId", function(data) {
+                // Update Badge Counts
+                $(".tab-total .tab-count").text(data.totalAssigned);
+                $(".tab-log .tab-count").text(data.loggedInCount);
+                $(".tab-ready .tab-count").text(data.startedCount);
+                $(".tab-exam .tab-count").text(data.inProgressCount);
+                $(".tab-submit .tab-count").text(data.submittedCount);
+                
+                // Update Table
+                let html = '';
+                data.studentActivities.forEach(s => {
+                    let connBadge = s.isLoggedIn ? '<span class="badge-active">Online</span>' : '<span class="badge-info">Offline</span>';
+                    
+                    let statusBadge = '';
+                    if (s.isBlocked) {
+                        statusBadge = '<span class="badge-danger">BLOCKED</span>';
+                    } else if (s.latestActivity === "Tab Switched / Minimised") {
+                        statusBadge = '<span class="badge-danger">Tab Switched</span>';
+                    } else if (["Active", "Started Exam", "Returned to Exam"].includes(s.latestActivity)) {
+                        statusBadge = `<span class="badge-active">${s.latestActivity}</span>`;
+                    } else {
+                        statusBadge = `<span class="badge-warn">${s.latestActivity}</span>`;
+                    }
+
+                    let sparkbars = '';
+                    for(let i=0; i<10; i++) {
+                        let h = 5 + (i * 2);
+                        let isFilled = (s.status === "Submitted") || (i < 6);
+                        let isWarn = (s.latestActivity === "Tab Switched / Minimised");
+                        sparkbars += `<div class="spark-bar ${isFilled ? 'filled' : ''} ${isWarn ? 'warn' : ''}" style="height: ${h}px;"></div>`;
+                    }
+
+                    let actionBtn = '';
+                    if (s.attemptId > 0) {
+                        let action = s.isBlocked ? 'UnblockStudent' : 'BlockStudent';
+                        let btnClass = s.isBlocked ? 'btn-success' : 'btn-danger';
+                        let btnText = s.isBlocked ? 'Unblock' : 'Block';
+                        actionBtn = `
+                            <form action="/Coordinator/${action}" method="post" style="display:inline;">
+                                <input type="hidden" name="attemptId" value="${s.attemptId}" />
+                                <input type="hidden" name="examId" value="@Model.Exam.ExamId" />
+                                <button type="submit" class="btn btn-sm ${btnClass}" style="font-size: 0.7rem; padding: 2px 8px;">${btnText}</button>
+                            </form>`;
+                    }
+
+                    html += `<tr>
+                        <td style="color: #444; font-weight: 500;">${s.fullName}</td>
+                        <td>${connBadge}</td>
+                        <td>${statusBadge}</td>
+                        <td class="time-cell">${s.startTime}</td>
+                        <td class="time-remaining">${s.status === "Submitted" ? "00:00" : s.durationUsed}</td>
+                        <td><div class="spark-container">${sparkbars}</div></td>
+                        <td>${actionBtn}</td>
+                    </tr>`;
+                });
+                $("#studentMonitorBody").html(html);
+                $("#entriesCount").text(`Showing 1 to ${data.studentActivities.length} of ${data.totalAssigned} entries`);
+            });
+        }
+        setInterval(refreshStats, 5000);
+    </script>
+</body>
+</html>

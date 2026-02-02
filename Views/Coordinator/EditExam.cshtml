@@ -1,0 +1,80 @@
+@model HolisticDepartmentExamSystem.Models.Exam
+@{
+    ViewData["Title"] = "Edit Exam";
+    Layout = "~/Views/Shared/_CoordinatorLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a asp-action="ManageExam" asp-route-examId="@Model.ExamId" class="btn btn-academic-outline btn-sm"><i class="bi bi-arrow-left"></i></a>
+            <h2 class="h4 mb-0 fw-bold">Update Examination Details</h2>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">Exam Information</h3>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="EditExam" method="post">
+                    <input type="hidden" asp-for="ExamId" />
+                    
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <label asp-for="Title" class="form-label fw-bold">Examination Title</label>
+                            <input asp-for="Title" class="form-control form-control-lg border-2" placeholder="e.g., Midterm Introduction to Psychology" required />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            <label asp-for="Description" class="form-label fw-bold">Description / Instructions</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mention rules, guidelines, or specific instructions for students..."></textarea>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="DurationMinutes" class="form-label fw-bold">Duration (Minutes)</label>
+                            <div class="input-group">
+                                <input asp-for="DurationMinutes" type="number" class="form-control" min="1" max="300" required />
+                                <span class="input-group-text bg-light"><i class="bi bi-clock"></i></span>
+                            </div>
+                            <span asp-validation-for="DurationMinutes" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="TotalMarks" class="form-label fw-bold">Total Marks</label>
+                            <div class="input-group">
+                                <input asp-for="TotalMarks" type="number" class="form-control" min="1" required />
+                                <span class="input-group-text bg-light"><i class="bi bi-award"></i></span>
+                            </div>
+                            <span asp-validation-for="TotalMarks" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <hr class="my-4" />
+                            <div class="d-flex justify-content-end gap-3">
+                                <a asp-action="ManageExam" asp-route-examId="@Model.ExamId" class="btn-academic btn-academic-outline">Cancel</a>
+                                <button type="submit" class="btn-academic btn-academic-primary">
+                                    <i class="bi bi-save me-2"></i> Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="alert alert-light border shadow-sm mt-4">
+            <div class="d-flex gap-3">
+                <div class="text-primary"><i class="bi bi-info-circle" style="font-size: 1.5rem;"></i></div>
+                <div>
+                    <h6 class="fw-bold mb-1">Editing Guidelines</h6>
+                    <p class="small text-muted mb-0">Changes to the total marks or duration should be carefully managed if students are currently taking the exam or if questions have already been graded.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

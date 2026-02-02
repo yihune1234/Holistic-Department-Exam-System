@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HEMS Coordinator</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/coordinator.css" asp-append-version="true" />
+</head>
+<body>
+    <div id="layout-wrapper">
+        <!-- SIDEBAR -->
+        <aside id="sidebar">
+            <div class="sidebar-brand">
+                <i class="bi bi-mortarboard-fill"></i>
+                <span>HEMS PANEL</span>
+            </div>
+
+            <nav>
+                <div class="menu-section">Main Menu</div>
+                <ul class="sidebar-menu">
+                    <li class="menu-item">
+                        <a asp-controller="Coordinator" asp-action="Dashboard" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
+                        <a asp-controller="Coordinator" asp-action="CreateExam" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CreateExam" ? "active" : "")">
+                            <i class="bi bi-plus-circle"></i>
+                            <span>Create Exam</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="menu-section">Operation</div>
+                <ul class="sidebar-menu">
+                    @if (ViewContext.RouteData.Values["examId"] != null || ViewBag.ExamId != null)
+                    {
+                        var currentExamId = ViewContext.RouteData.Values["examId"] ?? ViewBag.ExamId;
+                        <li class="menu-item">
+                            <a asp-controller="Coordinator" asp-action="ManageQuestions" asp-route-examId="@currentExamId" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageQuestions" ? "active" : "")">
+                                <i class="bi bi-question-square"></i>
+                                <span>Questions</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a asp-controller="Coordinator" asp-action="GeneratePasswords" asp-route-examId="@currentExamId" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "GeneratePasswords" ? "active" : "")">
+                                <i class="bi bi-key"></i>
+                                <span>Passwords</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a asp-controller="Coordinator" asp-action="MonitorExam" asp-route-examId="@currentExamId" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MonitorExam" ? "active" : "")">
+                                <i class="bi bi-broadcast"></i>
+                                <span>Live Monitor</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+
+                <div style="margin-top: auto; padding: 1rem;">
+                    <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                        <button type="submit" class="menu-link" style="width: 100%; border: none; background: transparent; text-align: left;">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main id="main-content">
+            <!-- TOP NAVBAR -->
+            <header id="top-navbar">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link d-lg-none" id="sidebar-toggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="ms-2 d-none d-sm-block">
+                        <span class="text-muted small">HEMS / Coordinator Panel</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn btn-link p-0 position-relative" data-bs-toggle="dropdown">
+                            <i class="bi bi-bell text-muted" style="font-size: 1.25rem;"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem; padding: 0.25rem 0.35rem;">
+                                3
+                            </span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow border-0" style="width: 300px;">
+                            <div class="dropdown-header font-weight-bold">Notifications</div>
+                            <a class="dropdown-item py-2 border-bottom" href="#">
+                                <div class="small fw-bold">New Submission</div>
+                                <div class="small text-muted">Alice Smith submitted Java Exam</div>
+                            </a>
+                            <a class="dropdown-item py-2 border-bottom" href="#">
+                                <div class="small fw-bold">Live Exam Alert</div>
+                                <div class="small text-muted">Database Exam timer started</div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="btn d-flex align-items-center gap-2 p-0" data-bs-toggle="dropdown">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">
+                                @User.Identity.Name.Substring(0, 1).ToUpper()
+                            </div>
+                            <span class="text-main small fw-bold d-none d-md-block">@User.Identity.Name</span>
+                            <i class="bi bi-chevron-down text-muted small"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item py-2" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item py-2" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item py-2 text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @RenderBody()
+            </div>
+
+            <footer style="margin-top: auto; padding: 2rem; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                &copy; @DateTime.Now.Year HEMS - Holistic Department Exam System
+            </footer>
+        </main>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(function () {
+            // Toggle sidebar on mobile
+            $("#sidebar-toggle").on("click", function () {
+                $("body").toggleClass("sidebar-open");
+            });
+
+            // Close sidebar when clicking overlay
+            $("#sidebar-overlay").on("click", function () {
+                $("body").removeClass("sidebar-open");
+            });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

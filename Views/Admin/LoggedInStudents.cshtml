@@ -1,0 +1,72 @@
+@model List<HolisticDepartmentExamSystem.Models.Student>
+@{
+    ViewData["Title"] = "Active Students";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var totalLoggedIn = ViewBag.TotalLoggedIn as int? ?? 0;
+    var totalStudents = ViewBag.TotalStudents as int? ?? 0;
+}
+
+<div class="content-card fade-in-up">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">Active Students</h3>
+            <p class="text-muted small mb-0">Students who have been active in the last 5 minutes</p>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-4">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Department</th>
+                    <th>Last Activity</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var student in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">@student.FullName</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">@student.User?.Username</div>
+                            </td>
+                            <td>@student.Department</td>
+                            <td>
+                                @(student.User?.LastActivity?.ToString("HH:mm:ss") ?? "N/A")
+                            </td>
+                            <td>
+                                <span class="badge-custom badge-active">Online</span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">💤</div>
+                            <div style="font-size: 1.125rem;">No students are currently online</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="stats-grid mt-4">
+    <div class="stat-card info">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-label">Currently Online</div>
+        <div class="stat-value">@totalLoggedIn</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🎓</div>
+        <div class="stat-label">Total Student Pool</div>
+        <div class="stat-value">@totalStudents</div>
+    </div>
+</div>

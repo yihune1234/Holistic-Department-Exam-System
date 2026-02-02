@@ -1,0 +1,170 @@
+@{
+    ViewData["Title"] = "System Settings";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-card fade-in-up">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">System Configuration</h3>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0.5rem 0 0 0;">
+                Configure global system settings and policies
+            </p>
+        </div>
+    </div>
+
+    <form asp-action="SystemSettings" method="post">
+        <!-- Exam Settings -->
+        <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--sidebar-bg); border-radius: 10px; border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.125rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>📝</span> Exam Settings
+            </h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Default Exam Duration (Minutes)</label>
+                    <input type="number" name="defaultExamDuration" class="form-control-custom" value="60" min="15" max="300" />
+                    <p style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem;">
+                        Default duration for new exams
+                    </p>
+                </div>
+
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Auto-Submit After Time</label>
+                    <div style="display: flex; gap: 1rem; align-items: center; padding: 0.875rem 1rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px;">
+                        <input type="checkbox" id="autoSubmit" name="autoSubmit" style="width: 20px; height: 20px; cursor: pointer;" checked />
+                        <label for="autoSubmit" style="margin: 0; cursor: pointer; color: var(--text-primary);">Enable auto-submit</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--sidebar-bg); border-radius: 10px; border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.125rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>🔒</span> Security Settings
+            </h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Max Login Attempts</label>
+                    <input type="number" name="maxLoginAttempts" class="form-control-custom" value="5" min="3" max="10" />
+                    <p style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem;">
+                        Account locks after this many failed attempts
+                    </p>
+                </div>
+
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Session Timeout (Minutes)</label>
+                    <input type="number" name="sessionTimeout" class="form-control-custom" value="30" min="10" max="120" />
+                    <p style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem;">
+                        Automatic logout after inactivity
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Policy -->
+        <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--sidebar-bg); border-radius: 10px; border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.125rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>🔑</span> Password Policy
+            </h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Minimum Password Length</label>
+                    <input type="number" name="minPasswordLength" class="form-control-custom" value="8" min="6" max="20" />
+                </div>
+
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Password Requirements</label>
+                    <div style="padding: 0.875rem 1rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px;">
+                        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="requireUppercase" name="requireUppercase" style="width: 20px; height: 20px; cursor: pointer;" checked />
+                            <label for="requireUppercase" style="margin: 0; cursor: pointer; color: var(--text-primary);">Require uppercase</label>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="requireNumbers" name="requireNumbers" style="width: 20px; height: 20px; cursor: pointer;" checked />
+                            <label for="requireNumbers" style="margin: 0; cursor: pointer; color: var(--text-primary);">Require numbers</label>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <input type="checkbox" id="requireSpecial" name="requireSpecial" style="width: 20px; height: 20px; cursor: pointer;" />
+                            <label for="requireSpecial" style="margin: 0; cursor: pointer; color: var(--text-primary);">Require special characters</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grading System -->
+        <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--sidebar-bg); border-radius: 10px; border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.125rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>📊</span> Grade Boundaries
+            </h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Grade A (≥)</label>
+                    <input type="number" name="gradeA" class="form-control-custom" value="80" min="0" max="100" />
+                </div>
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Grade B (≥)</label>
+                    <input type="number" name="gradeB" class="form-control-custom" value="70" min="0" max="100" />
+                </div>
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Grade C (≥)</label>
+                    <input type="number" name="gradeC" class="form-control-custom" value="60" min="0" max="100" />
+                </div>
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Grade D (≥)</label>
+                    <input type="number" name="gradeD" class="form-control-custom" value="50" min="0" max="100" />
+                </div>
+                <div class="form-group-custom" style="margin-bottom: 0;">
+                    <label class="form-label-custom">Grade F (<)</label>
+                    <input type="number" name="gradeF" class="form-control-custom" value="50" min="0" max="100" disabled />
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Notifications -->
+        <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--sidebar-bg); border-radius: 10px; border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.125rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>📧</span> Email Notifications
+            </h4>
+            
+            <div style="display: grid; gap: 1rem;">
+                <div style="display: flex; gap: 1rem; align-items: center; padding: 0.875rem 1rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px;">
+                    <input type="checkbox" id="emailOnExamPublish" name="emailOnExamPublish" style="width: 20px; height: 20px; cursor: pointer;" checked />
+                    <label for="emailOnExamPublish" style="margin: 0; cursor: pointer; color: var(--text-primary);">Notify students when exam is published</label>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center; padding: 0.875rem 1rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px;">
+                    <input type="checkbox" id="emailOnResults" name="emailOnResults" style="width: 20px; height: 20px; cursor: pointer;" checked />
+                    <label for="emailOnResults" style="margin: 0; cursor: pointer; color: var(--text-primary);">Notify students when results are available</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn-custom btn-primary-custom" style="flex: 1;">
+                <span>✅</span> Save Settings
+            </button>
+            <button type="reset" class="btn-custom btn-outline-custom" style="flex: 1;">
+                <span>🔄</span> Reset to Defaults
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Info Box -->
+<div class="content-card" style="margin-top: 1.5rem; background: rgba(79, 172, 254, 0.1); border: 1px solid #4facfe;">
+    <div style="padding: 1rem;">
+        <h4 style="color: #4facfe; margin-bottom: 0.5rem;">ℹ️ Important Information</h4>
+        <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">
+            • Changes to these settings will affect all users and exams system-wide<br/>
+            • Grade boundaries are used to automatically calculate student grades<br/>
+            • Security settings help protect against unauthorized access<br/>
+            • Email notifications require SMTP configuration in appsettings.json
+        </p>
+    </div>
+</div>

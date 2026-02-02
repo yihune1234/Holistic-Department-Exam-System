@@ -1,0 +1,118 @@
+@model HolisticDepartmentExamSystem.Controllers.StudentDashboardViewModel
+
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Welcome, @Model.Student.FullName</h1>
+            <p class="text-muted">@Model.Student.Department | Year @Model.Student.YearOfStudy</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <p class="card-text">Email: <strong>@Model.Student.Email</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Exams Taken</h5>
+                    <h2 class="text-primary">@Model.TotalExamsTaken</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Average Score</h5>
+                    <h2 class="text-success">@Model.AverageScore</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Upcoming Exams</h5>
+                    <h2 class="text-info">@Model.UpcomingExams.Count</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Recent Results</h5>
+                    <h2 class="text-warning">@Model.RecentResults.Count</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Exams -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Upcoming Exams</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.UpcomingExams.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var exam in Model.UpcomingExams)
+                            {
+                                <a href="@Url.Action("EnterPassword", new { examId = exam.ExamId })" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">@exam.Title</h6>
+                                    <p class="mb-1 small text-muted">@exam.DurationMinutes minutes | @exam.TotalMarks marks</p>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No upcoming exams assigned.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Results -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Recent Results</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentResults.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var result in Model.RecentResults)
+                            {
+                                <a href="@Url.Action("Result", new { attemptId = result.AttemptId })" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">@result.Attempt.Exam.Title</h6>
+                                    <p class="mb-1 small">
+                                        <span class="badge bg-@(result.Grade == "A" || result.Grade == "B" ? "success" : result.Grade == "C" || result.Grade == "D" ? "warning" : "danger")">
+                                            Grade: @result.Grade
+                                        </span>
+                                        <span class="badge bg-info">Score: @result.TotalScore</span>
+                                    </p>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No results published yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

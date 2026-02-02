@@ -1,0 +1,104 @@
+@model HolisticDepartmentExamSystem.Controllers.ResultViewModel
+@{
+    ViewData["Title"] = "Performance Review";
+}
+
+<div class="portal-wrapper py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            @if (!Model.Result.Attempt.Exam.ResultsPublished)
+            {
+                <div class="glass-card text-center p-5 shadow-lg border-0" style="margin-top: 4rem;">
+                    <div class="mb-4">
+                        <i class="bi bi-shield-lock display-1 text-primary opacity-25"></i>
+                    </div>
+                    <h2 class="fw-bold text-navy">Results Pending</h2>
+                    <p class="text-muted lead px-4">The examination results for <strong>@Model.Result.Attempt.Exam.Title</strong> have not been published by the authority yet.</p>
+                    <div class="alert alert-info border-0 rounded-4 mt-4 py-3">
+                        <i class="bi bi-info-circle-fill me-2"></i> Results are typically released within 48-72 hours after session completion.
+                    </div>
+                    <div class="mt-5">
+                        <a asp-action="Dashboard" class="btn btn-primary rounded-pill px-5 py-3 shadow">
+                            Return to Portal Now
+                        </a>
+                        <p class="text-muted mt-3 small">You will be automatically redirected to your portal in <span id="timer">10</span> seconds...</p>
+                    </div>
+                </div>
+                <script>
+                    var seconds = 10;
+                    var countdown = setInterval(function() {
+                        seconds--;
+                        document.getElementById("timer").textContent = seconds;
+                        if (seconds <= 0) {
+                            clearInterval(countdown);
+                            window.location.href = '@Url.Action("Dashboard")';
+                        }
+                    }, 1000);
+                </script>
+            }
+            else
+            {
+                <div class="glass-card overflow-hidden p-0 border-0 shadow-lg">
+                <!-- Result Header -->
+                <div class="p-5 text-center @(Model.Result.PassStatus == "Pass" ? "bg-success" : "bg-danger") bg-opacity-10">
+                    <div class="status-icon-box mb-4 mx-auto @(Model.Result.PassStatus == "Pass" ? "text-success" : "text-danger")">
+                        <i class="bi @(Model.Result.PassStatus == "Pass" ? "bi-check-circle-fill" : "bi-x-circle-fill") display-1"></i>
+                    </div>
+                    <h1 class="display-3 fw-bold text-navy mb-2">@Model.Result.Grade</h1>
+                    <p class="lead fw-bold @(Model.Result.PassStatus == "Pass" ? "text-success" : "text-danger") text-uppercase tracking-widest">
+                        Official Result: @Model.Result.PassStatus
+                    </p>
+                </div>
+
+                <div class="p-5 bg-white bg-opacity-50">
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4 bg-light border border-light text-center h-100">
+                                <div class="small text-muted mb-2">Total Accumulated Score</div>
+                                <div class="h2 fw-bold text-navy mb-0">@Model.Result.TotalScore <span class="fs-5 text-muted">/ @Model.Result.Attempt.Exam.TotalMarks</span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4 bg-light border border-light text-center h-100">
+                                <div class="small text-muted mb-2">Examination Period</div>
+                                <div class="h2 fw-bold text-navy mb-0">@Model.Result.PublishedAt.ToString("MMM dd") <span class="fs-5 text-muted">@Model.Result.PublishedAt.Year</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-3">
+                        <hr class="my-4 opacity-10">
+                        
+                        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+                            <a asp-action="ReviewAnswers" asp-route-attemptId="@Model.Result.AttemptId" class="btn btn-outline-primary rounded-pill px-5 py-3 fw-bold">
+                                <i class="bi bi-search me-2"></i> Review My Answers
+                            </a>
+                            <a asp-action="Dashboard" class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow">
+                                <i class="bi bi-house-door me-2"></i> Return to Portal
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+            
+            <p class="text-center text-muted mt-5 small">
+                This result is digitally generated and verified by the Holistic Department System. 
+                <br/>© 2026 Holistic Exam Authority
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Pulse animation override if needed, but keeping it small */
+    .status-icon-box {
+        animation: pulseResult 2s infinite;
+    }
+
+    @@keyframes pulseResult {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>

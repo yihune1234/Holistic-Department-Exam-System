@@ -1,0 +1,116 @@
+@model HolisticDepartmentExamSystem.Models.Question
+@{
+    ViewData["Title"] = "Edit Question";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Edit Question</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="QuestionId" />
+                    <input type="hidden" asp-for="ExamId" />
+                    
+                    <div class="mb-3">
+                        <label asp-for="QuestionText" class="form-label">Question Text</label>
+                        <textarea asp-for="QuestionText" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="QuestionText" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="QuestionType" class="form-label">Question Type</label>
+                                <select asp-for="QuestionType" class="form-select" id="questionType" required onchange="toggleOptions()">
+                                    <option value="Multiple Choice">Multiple Choice</option>
+                                    <option value="True/False">True/False</option>
+                                    <option value="Short Answer">Short Answer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Marks" class="form-label">Marks</label>
+                                <input asp-for="Marks" class="form-control" type="number" min="1" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="optionsContainer">
+                        <hr />
+                        <h5>Choices</h5>
+                        <div id="optionsList">
+                            @{
+                                var choices = Model.Choices?.ToList() ?? new List<Choice>();
+                                for (int i = 0; i < choices.Count; i++)
+                                {
+                                    <div class="option-item mb-2 input-group">
+                                        <span class="input-group-text">
+                                            <input type="radio" name="correctOptionIndex" value="@i" @(choices[i].IsCorrect ? "checked" : "") required>
+                                        </span>
+                                        <input type="text" name="optionTexts" class="form-control" value="@choices[i].ChoiceText" required>
+                                        <button type="button" class="btn btn-outline-danger" onclick="removeOption(this)">Remove</button>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-success mt-2" id="addOptionBtn" onclick="addOption()">
+                            <i class="bi bi-plus"></i> Add Option
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-controller="Coordinator" asp-action="ManageQuestions" asp-route-examId="@Model.ExamId" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Question</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleOptions() {
+            const type = document.getElementById('questionType').value;
+            const container = document.getElementById('optionsContainer');
+            const addBtn = document.getElementById('addOptionBtn');
+
+            if (type === 'Short Answer') {
+                container.style.display = 'none';
+            } else {
+                container.style.display = 'block';
+                addBtn.style.display = (type === 'True/False') ? 'none' : 'inline-block';
+            }
+        }
+
+        function addOption() {
+            const list = document.getElementById('optionsList');
+            const index = list.children.length;
+            const div = document.createElement('div');
+            div.className = 'option-item mb-2 input-group';
+            div.innerHTML = `
+                <span class="input-group-text"><input type="radio" name="correctOptionIndex" value="${index}"></span>
+                <input type="text" name="optionTexts" class="form-control" placeholder="New Option" required>
+                <button type="button" class="btn btn-outline-danger" onclick="removeOption(this)">Remove</button>
+            `;
+            list.appendChild(div);
+        }
+
+        function removeOption(btn) {
+            const list = document.getElementById('optionsList');
+            if (list.children.length > 1) {
+                btn.closest('.option-item').remove();
+                Array.from(list.children).forEach((item, i) => {
+                    item.querySelector('input[type="radio"]').value = i;
+                });
+            }
+        }
+
+        // Initialize state
+        toggleOptions();
+    </script>
+}

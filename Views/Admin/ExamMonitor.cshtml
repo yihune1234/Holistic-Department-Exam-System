@@ -1,0 +1,71 @@
+@model List<HolisticDepartmentExamSystem.Models.Exam>
+@{
+    ViewData["Title"] = "Exam Monitor";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-card fade-in-up">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">Live Exam Monitor</h3>
+            <p class="text-muted small mb-0">Real-time status of published and ongoing examination sessions</p>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-4">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Session Title</th>
+                    <th>Submissions</th>
+                    <th>Ongoing</th>
+                    <th>Status</th>
+                    <th style="text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var exam in Model)
+                    {
+                        var submittedCount = exam.ExamAttempts.Count(ea => ea.Status == "Submitted");
+                        var activeCount = exam.ExamAttempts.Count(ea => ea.Status == "In Progress");
+                        
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">@exam.Title</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">@exam.DurationMinutes min • @exam.TotalMarks marks</div>
+                            </td>
+                            <td>
+                                <span class="badge-custom badge-active">@submittedCount Submitted</span>
+                            </td>
+                            <td>
+                                <span class="badge-custom badge-draft">@activeCount Ongoing</span>
+                            </td>
+                            <td>
+                                <span class="badge-custom badge-published">Active</span>
+                            </td>
+                            <td>
+                                <div class="action-buttons" style="justify-content: center;">
+                                    <a asp-action="ViewExamAssignments" asp-route-examId="@exam.ExamId" class="btn-custom btn-outline-custom btn-icon" title="View Details">
+                                        <span>👁️</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📡</div>
+                            <div style="font-size: 1.125rem;">No active exams found</div>
+                            <div style="font-size: 0.875rem; margin-top: 0.5rem;">Only exams with 'Published' status appear here for monitoring.</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,105 @@
+@model List<HolisticDepartmentExamSystem.Models.Exam>
+@{
+    ViewData["Title"] = "All Exams";
+    Layout = "~/Views/Shared/_CoordinatorLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 mb-0 fw-bold">Examination Management</h2>
+        <p class="text-muted small mb-0">Create, edit, and monitor your exams here.</p>
+    </div>
+    <a asp-action="CreateExam" class="btn-academic btn-academic-primary">
+        <i class="bi bi-plus-lg"></i> Create New Exam
+    </a>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <h3 class="card-title">All Created Exams</h3>
+        <div class="input-group input-group-sm" style="width: 250px;">
+            <input type="text" class="form-control" placeholder="Search exams...">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Exam Title</th>
+                    <th>Status</th>
+                    <th>Start Date</th>
+                    <th>Duration</th>
+                    <th>Questions</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var exam in Model)
+                {
+                    <tr>
+                        <td class="fw-bold text-main">
+                            <a asp-action="ManageExam" asp-route-examId="@exam.ExamId" class="text-decoration-none text-main hover-primary">
+                                @exam.Title
+                            </a>
+                        </td>
+                        <td>
+                            @switch (exam.Status)
+                            {
+                                case "Active":
+                                    <span class="badge-soft badge-soft-green">ACTIVE</span>
+                                    break;
+                                case "Published":
+                                    <span class="badge-soft badge-soft-blue">PUBLISHED</span>
+                                    break;
+                                case "Draft":
+                                    <span class="badge-soft badge-soft-gray">DRAFT</span>
+                                    break;
+                                case "Closed":
+                                    <span class="badge-soft badge-soft-red">CLOSED</span>
+                                    break;
+                                default:
+                                    <span class="badge-soft badge-soft-gray">@exam.Status</span>
+                                    break;
+                            }
+                        </td>
+                        <td class="text-muted small">@exam.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>@exam.DurationMinutes mins</td>
+                        <td>
+                            <span class="badge-soft badge-soft-gray">@(exam.Questions?.Count ?? 0) Qs</span>
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-academic-outline dropdown-toggle" data-bs-toggle="dropdown">
+                                    Manage
+                                </button>
+                                <ul class="dropdown-menu shadow border-0">
+                                    <li><a class="dropdown-item py-2" asp-action="EditExam" asp-route-examId="@exam.ExamId"><i class="bi bi-pencil-square me-2"></i> Edit Exam Info</a></li>
+                                    <li><a class="dropdown-item py-2" asp-action="ManageQuestions" asp-route-examId="@exam.ExamId"><i class="bi bi-list-check me-2"></i> Edit Questions</a></li>
+                                    <li><a class="dropdown-item py-2" asp-action="GeneratePasswords" asp-route-examId="@exam.ExamId"><i class="bi bi-key me-2"></i> Passwords</a></li>
+                                    <li><a class="dropdown-item py-2 border-top" asp-action="MonitorExam" asp-route-examId="@exam.ExamId"><i class="bi bi-broadcast me-2 text-primary"></i> Live Monitor</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-action="DeleteExam" asp-route-examId="@exam.ExamId" method="post" onsubmit="return confirm('Are you sure you want to delete this exam? This action cannot be undone.')">
+                                            <button type="submit" class="dropdown-item py-2 text-danger"><i class="bi bi-trash me-2"></i> Delete</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted mb-3"><i class="bi bi-journal-x" style="font-size: 3rem;"></i></div>
+                            <h6>No exams found</h6>
+                            <p class="small text-muted">You haven't created any exams yet.</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

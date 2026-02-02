@@ -1,0 +1,77 @@
+@model HolisticDepartmentExamSystem.Controllers.SecurityMonitorViewModel
+@{
+    ViewData["Title"] = "Security Monitor";
+}
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning py-3">
+                <h6 class="m-0 font-weight-bold text-dark">Suspicious Activity</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SuspiciousActivity.Any())
+                            {
+                                foreach (var log in Model.SuspiciousActivity)
+                                {
+                                    <tr class="table-danger">
+                                        <td>@log.Timestamp.ToString("HH:mm")</td>
+                                        <td>@log.User?.Username</td>
+                                        <td>@log.Action</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No suspicious activity records.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info py-3">
+                <h6 class="m-0 font-weight-bold text-white">Recent Logins</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>IP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var log in Model.RecentLogins)
+                            {
+                                <tr>
+                                    <td>@log.Timestamp.ToString("HH:mm")</td>
+                                    <td>@log.User?.Username</td>
+                                    <td>@log.IpAddress</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

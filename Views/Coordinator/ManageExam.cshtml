@@ -1,0 +1,149 @@
+@model HolisticDepartmentExamSystem.Models.Exam
+@{
+    ViewData["Title"] = "Exam Control Hub";
+    Layout = "~/Views/Shared/_CoordinatorLayout.cshtml";
+    ViewBag.ExamId = Model.ExamId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item small"><a asp-action="ExamList">Exams</a></li>
+                <li class="breadcrumb-item small active">Control Hub</li>
+            </ol>
+        </nav>
+        <h2 class="h4 mb-0 fw-bold">Exam Control: @Model.Title</h2>
+    </div>
+    <div class="d-flex gap-2">
+        <span class="badge-soft @(Model.Status == "Active" ? "badge-soft-green" : (Model.Status == "Published" ? "badge-soft-blue" : "badge-soft-gray"))">
+            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> @Model.Status
+        </span>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Hub Actions -->
+    <div class="col-lg-8">
+        <div class="row g-4">
+            <!-- Questions Hub -->
+            <div class="col-md-6">
+                <div class="content-card h-100 hover-shadow transition-all border-0 shadow-sm" style="cursor: pointer;" onclick="location.href='@Url.Action("ManageQuestions", new { examId = Model.ExamId })'">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary">
+                                <i class="bi bi-question-square-fill fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Questions</h5>
+                                <span class="text-muted small">Manage @(Model.Questions?.Count ?? 0) Questions</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">Create, edit, and organize multiple choice and theory questions for this examination.</p>
+                        <div class="mt-3 text-primary fw-bold small">Manage Questions <i class="bi bi-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passwords Hub -->
+            <div class="col-md-6">
+                <div class="content-card h-100 hover-shadow transition-all border-0 shadow-sm" style="cursor: pointer;" onclick="location.href='@Url.Action("GeneratePasswords", new { examId = Model.ExamId })'">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-info bg-opacity-10 p-3 rounded-3 text-info">
+                                <i class="bi bi-key-fill fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Access Codes</h5>
+                                <span class="text-muted small">@(Model.ExamPasswords?.Count ?? 0) Assigned Students</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">Generate and view secure passwords for students to enter the examination.</p>
+                        <div class="mt-3 text-info fw-bold small">Manage Access <i class="bi bi-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitoring Hub -->
+            <div class="col-md-6">
+                <div class="content-card h-100 hover-shadow transition-all border-0 shadow-sm" style="cursor: pointer;" onclick="location.href='@Url.Action("MonitorExam", new { examId = Model.ExamId })'">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success">
+                                <i class="bi bi-broadcast fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Live Supervision</h5>
+                                <span class="text-muted small">Monitor real-time status</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">Watch students take the exam live, track progress, and manage exam timers.</p>
+                        <div class="mt-3 text-success fw-bold small">Open Monitor <i class="bi bi-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Hub -->
+            <div class="col-md-6">
+                <div class="content-card h-100 hover-shadow transition-all border-0 shadow-sm" style="cursor: pointer;" onclick="location.href='@Url.Action("ExamResults", new { examId = Model.ExamId })'">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-warning bg-opacity-10 p-3 rounded-3 text-warning">
+                                <i class="bi bi-file-earmark-bar-graph-fill fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Performance</h5>
+                                <span class="text-muted small">Results & Statistics</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">Review student scores, download results csv, and analyze overall performance.</p>
+                        <div class="mt-3 text-warning fw-bold small">View Results <i class="bi bi-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar Info -->
+    <div class="col-lg-4">
+        <div class="content-card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title fw-bold">Exam Metadata</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="text-muted small fw-bold text-uppercase">Duration</label>
+                    <div class="fw-bold fs-5">@Model.DurationMinutes Minutes</div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small fw-bold text-uppercase">Total Marks</label>
+                    <div class="fw-bold fs-5 text-primary">@Model.TotalMarks Pts</div>
+                </div>
+                <hr />
+                <div class="d-grid gap-2">
+                    <a asp-action="EditExam" asp-route-examId="@Model.ExamId" class="btn btn-academic-outline w-100">
+                        <i class="bi bi-pencil me-2"></i> Edit Exam Info
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info border-0 shadow-sm">
+            <h6 class="fw-bold"><i class="bi bi-info-circle-fill me-2"></i> Quick Guide</h6>
+            <p class="small mb-0">First add <strong>Questions</strong>, then <strong>Generate Passwords</strong> for students. Once everything is ready, go to <strong>Live Supervision</strong> to activate the exam.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-shadow {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
+</style>

@@ -1,0 +1,37 @@
+@model HolisticDepartmentExamSystem.Services.ExamWeightedSummary
+
+@{
+    ViewData["Title"] = "Weighted Marks";
+}
+
+<div class="container mt-4">
+    <h2>Weighted Marks - @Model.ExamTitle</h2>
+    
+    <div class="alert alert-info">
+        <p><strong>Total Exam Marks:</strong> @Model.TotalExamMarks</p>
+        <p><strong>Total Raw Points:</strong> @Model.TotalRawPoints</p>
+        <p><strong>Scaling Needed:</strong> @(Model.IsScalingNeeded ? "Yes" : "No")</p>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Raw Points</th>
+                <th>Weighted Marks</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var q in Model.QuestionWeights)
+            {
+                <tr>
+                    <td>Q@q.QuestionOrder: @q.QuestionText</td>
+                    <td>@q.RawPoints</td>
+                    <td>@q.WeightedMarks.ToString("F2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a href="@Url.Action("ManageExam", new { examId = Model.ExamId })" class="btn btn-primary">Back</a>
+</div>

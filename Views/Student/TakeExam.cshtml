@@ -1,0 +1,504 @@
+@model HolisticDepartmentExamSystem.Models.ExamAttempt
+@{
+    ViewData["Title"] = Model.Exam.Title;
+    Layout = null; // Full-screen exam mode
+    var questions = Model.Exam.Questions.OrderBy(q => q.QuestionOrder).ToList();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Exam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/exam.css" />
+</head>
+<body>
+    <div class="exam-container">
+        <!-- TOP BAR (Fixed Header) -->
+        <div class="exam-top-bar">
+            <h1 class="exam-title">📝 @Model.Exam.Title</h1>
+            <div class="exam-timer" id="timer">--:--</div>
+            <button type="button" class="exam-submit-btn" onclick="showSubmitConfirmation()">
+                🚀 Submit Exam
+            </button>
+        </div>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="exam-content">
+            <!-- QUESTION AREA (Left Side) -->
+            <div class="question-area">
+                @for (int i = 0; i < questions.Count; i++)
+                {
+                    var q = questions[i];
+                    var existingAnswer = Model.Answers.FirstOrDefault(a => a.QuestionId == q.QuestionId);
+                    var isFlagged = existingAnswer?.IsFlagged ?? false;
+                    
+                    <div class="question-container @(i == 0 ? "" : "d-none")" id="q-container-@i" data-qid="@q.QuestionId" data-flagged="@isFlagged.ToString().ToLower()">
+                        <!-- Question Header -->
+                        <div class="question-header">
+                            <div class="question-number">Question @(i + 1) of @questions.Count</div>
+                            <div class="question-marks">@q.Marks Marks</div>
+                        </div>
+
+                        <!-- Question Text -->
+                        <div class="question-text">@q.QuestionText</div>
+
+                        <!-- Options Area -->
+                        <div class="options-area">
+                            @foreach (var ch in q.Choices)
+                            {
+                                var isChecked = Model.Answers.Any(a => a.QuestionId == q.QuestionId && a.SelectedChoiceId == ch.ChoiceId);
+                                
+                                <div class="option-item @(isChecked ? "selected" : "")" onclick="selectOption(this, @q.QuestionId, @ch.ChoiceId)">
+                                    <input class="option-radio" type="radio" name="q-@q.QuestionId" id="ch-@ch.ChoiceId" 
+                                           value="@ch.ChoiceId" @(isChecked ? "checked" : "")>
+                                    <label class="option-label" for="ch-@ch.ChoiceId">@ch.ChoiceText</label>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="question-actions">
+                            <button type="button" class="action-btn btn-previous" id="prevBtn" onclick="navigateQuestion(-1)">
+                                ← Previous
+                            </button>
+                            
+                            <button type="button" class="action-btn btn-flag @(isFlagged ? "flagged" : "")" id="flagBtn-@i" onclick="toggleFlag(@i, @q.QuestionId)">
+                                <span id="flagText-@i">@(isFlagged ? "🚩 Flagged" : "🏳️ Flag for Review")</span>
+                            </button>
+                            
+                            <button type="button" class="action-btn btn-next" id="nextBtn" onclick="navigateQuestion(1)">
+                                Next →
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- NAVIGATION PANEL (Right Side) -->
+            <div class="navigation-panel">
+                <div class="nav-panel-header">Question Navigator</div>
+
+                <!-- Progress Stats -->
+                <div class="progress-stats">
+                    <div class="stat-item answered">
+                        <div class="stat-value" id="answeredCount">0</div>
+                        <div class="stat-label">Answered</div>
+                    </div>
+                    <div class="stat-item flagged">
+                        <div class="stat-value" id="flaggedCount">0</div>
+                        <div class="stat-label">Flagged</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="unansweredCount">@questions.Count</div>
+                        <div class="stat-label">Remaining</div>
+                    </div>
+                </div>
+
+                <!-- Question Grid -->
+                <div class="question-grid">
+                    @for (int i = 0; i < questions.Count; i++)
+                    {
+                        var q = questions[i];
+                        var isAnswered = Model.Answers.Any(a => a.QuestionId == q.QuestionId && a.SelectedChoiceId.HasValue);
+                        var isFlagged = Model.Answers.Any(a => a.QuestionId == q.QuestionId && a.IsFlagged);
+                        
+                        // Priority: Flagged > Answered > Unanswered
+                        var btnClass = isFlagged ? "flagged" : (isAnswered ? "answered" : "unanswered");
+                        
+                        <button type="button" class="question-btn @btnClass @(i == 0 ? "current" : "")" 
+                                id="nav-@q.QuestionId" data-index="@i" onclick="jumpToQuestion(@i)">
+                            @(i + 1)
+                        </button>
+                    }
+                </div>
+
+                <!-- Legend -->
+                <div class="question-legend">
+                    <div class="legend-item">
+                        <div class="legend-box answered"></div>
+                        <span>Answered</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box flagged"></div>
+                        <span>Flagged for Review</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box unanswered"></div>
+                        <span>Not Answered</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBMIT CONFIRMATION MODAL -->
+    <div class="exam-modal" id="submitModal">
+        <div class="modal-content">
+            <div class="modal-header">⚠️ Submit Exam?</div>
+            <div class="modal-body">
+                <p>Are you sure you want to submit your exam?</p>
+                
+                <div class="modal-warning" id="warningSection" style="display: none;">
+                    <strong>⚠️ Warning:</strong>
+                    <ul id="warningList" style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;"></ul>
+                </div>
+                
+                <p style="margin-top: 1rem; font-weight: 600;">This action cannot be undone!</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeSubmitModal()">
+                    Cancel
+                </button>
+                <button type="button" class="modal-btn modal-btn-primary" onclick="reviewQuestions()" id="reviewBtn" style="display: none;">
+                    Review Questions
+                </button>
+                <button type="button" class="modal-btn modal-btn-danger" onclick="submitExam()">
+                    Submit Anyway
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Form for Submission -->
+    <form id="submitForm" asp-action="SubmitExam" method="post" style="display: none;">
+        <input type="hidden" name="attemptId" value="@Model.AttemptId" />
+    </form>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
+        let currentIndex = 0;
+        const totalQuestions = @questions.Count;
+        const attemptId = @Model.AttemptId;
+        const endTimeStr = "@Model.StartTime.AddMinutes(Model.Exam.DurationMinutes).ToString("yyyy-MM-ddTHH:mm:ss")";
+        const endTime = new Date(endTimeStr).getTime();
+        let timerInterval;
+        let questionStates = [];
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        $(document).ready(function() {
+            initializeQuestionStates();
+            updateProgressStats();
+            updateNavigation();
+            startTimer();
+            preventNavigation();
+        });
+
+        function initializeQuestionStates() {
+            @for (int i = 0; i < questions.Count; i++)
+            {
+                var q = questions[i];
+                var isAnswered = Model.Answers.Any(a => a.QuestionId == q.QuestionId && a.SelectedChoiceId.HasValue);
+                var isFlagged = Model.Answers.Any(a => a.QuestionId == q.QuestionId && a.IsFlagged);
+                @:questionStates[@i] = {
+                @:    questionId: @q.QuestionId,
+                @:    answered: @isAnswered.ToString().ToLower(),
+                @:    flagged: @isFlagged.ToString().ToLower()
+                @:};
+            }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function navigateQuestion(step) {
+            document.getElementById(`q-container-${currentIndex}`).classList.add('d-none');
+            currentIndex += step;
+            document.getElementById(`q-container-${currentIndex}`).classList.remove('d-none');
+            updateNavigation();
+        }
+
+        function jumpToQuestion(index) {
+            document.getElementById(`q-container-${currentIndex}`).classList.add('d-none');
+            
+            // Remove current class from all buttons
+            document.querySelectorAll('.question-btn').forEach(btn => btn.classList.remove('current'));
+            
+            currentIndex = index;
+            document.getElementById(`q-container-${currentIndex}`).classList.remove('d-none');
+            
+            // Add current class to clicked button
+            document.querySelector(`.question-btn[data-index="${index}"]`).classList.add('current');
+            
+            updateNavigation();
+        }
+
+        function updateNavigation() {
+            // Update Previous button
+            const prevBtn = document.getElementById('prevBtn');
+            prevBtn.disabled = currentIndex === 0;
+            
+            // Update Next button
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentIndex === totalQuestions - 1) {
+                nextBtn.innerHTML = 'Finish →';
+                nextBtn.onclick = showSubmitConfirmation;
+            } else {
+                nextBtn.innerHTML = 'Next →';
+                nextBtn.onclick = function() { navigateQuestion(1); };
+            }
+            
+            // Update current question highlight
+            document.querySelectorAll('.question-btn').forEach(btn => btn.classList.remove('current'));
+            document.querySelector(`.question-btn[data-index="${currentIndex}"]`)?.classList.add('current');
+        }
+
+        // ============================================
+        // ANSWER SELECTION
+        // ============================================
+        function selectOption(element, questionId, choiceId) {
+            // Visual update
+            const container = element.closest('.options-area');
+            container.querySelectorAll('.option-item').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            // Check radio button
+            document.getElementById(`ch-${choiceId}`).checked = true;
+            
+            // Save answer
+            saveAnswer(questionId, choiceId, false);
+        }
+
+        function saveAnswer(questionId, selectedChoiceId, isFlagged) {
+            const data = {
+                attemptId: attemptId,
+                questionId: questionId,
+                selectedOptionId: selectedChoiceId,
+                isFlagged: isFlagged
+            };
+
+            $.ajax({
+                url: '/Student/SaveAnswer',
+                type: 'POST',
+                data: data,
+                success: function() {
+                    // Update question state
+                    const qIndex = questionStates.findIndex(q => q.questionId === questionId);
+                    if (qIndex !== -1) {
+                        questionStates[qIndex].answered = true;
+                        updateQuestionButton(questionId);
+                        updateProgressStats();
+                    }
+                },
+                error: function() {
+                    alert('Failed to save answer. Please try again.');
+                }
+            });
+        }
+
+        // ============================================
+        // FLAG FUNCTIONALITY
+        // ============================================
+        function toggleFlag(index, questionId) {
+            const container = document.getElementById(`q-container-${index}`);
+            const currentFlag = container.dataset.flagged === 'true';
+            const newFlag = !currentFlag;
+            
+            // Update UI
+            container.dataset.flagged = newFlag;
+            const flagBtn = document.getElementById(`flagBtn-${index}`);
+            const flagText = document.getElementById(`flagText-${index}`);
+            
+            if (newFlag) {
+                flagBtn.classList.add('flagged');
+                flagText.textContent = '🚩 Flagged';
+            } else {
+                flagBtn.classList.remove('flagged');
+                flagText.textContent = '🏳️ Flag for Review';
+            }
+            
+            // Update question state
+            const qIndex = questionStates.findIndex(q => q.questionId === questionId);
+            if (qIndex !== -1) {
+                questionStates[qIndex].flagged = newFlag;
+            }
+            
+            // Save flag status
+            const selectedChoice = document.querySelector(`input[name="q-${questionId}"]:checked`);
+            const choiceId = selectedChoice ? parseInt(selectedChoice.value) : null;
+            
+            $.ajax({
+                url: '/Student/SaveAnswer',
+                type: 'POST',
+                data: {
+                    attemptId: attemptId,
+                    questionId: questionId,
+                    selectedOptionId: choiceId,
+                    isFlagged: newFlag
+                },
+                success: function() {
+                    updateQuestionButton(questionId);
+                    updateProgressStats();
+                }
+            });
+        }
+
+        // ============================================
+        // UI UPDATES
+        // ============================================
+        function updateQuestionButton(questionId) {
+            const navBtn = document.getElementById(`nav-${questionId}`);
+            const qState = questionStates.find(q => q.questionId === questionId);
+            
+            if (!navBtn || !qState) return;
+            
+            // Remove all state classes
+            navBtn.classList.remove('answered', 'flagged', 'unanswered');
+            
+            // Priority: Flagged > Answered > Unanswered
+            if (qState.flagged) {
+                navBtn.classList.add('flagged');
+            } else if (qState.answered) {
+                navBtn.classList.add('answered');
+            } else {
+                navBtn.classList.add('unanswered');
+            }
+        }
+
+        function updateProgressStats() {
+            const answered = questionStates.filter(q => q.answered).length;
+            const flagged = questionStates.filter(q => q.flagged).length;
+            const unanswered = totalQuestions - answered;
+            
+            document.getElementById('answeredCount').textContent = answered;
+            document.getElementById('flaggedCount').textContent = flagged;
+            document.getElementById('unansweredCount').textContent = unanswered;
+        }
+
+        // ============================================
+        // TIMER
+        // ============================================
+        function startTimer() {
+            timerInterval = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById("timer").innerHTML = "TIME UP!";
+                    alert("⏰ Time is up! Your exam will be submitted automatically.");
+                    submitExam();
+                    return;
+                }
+
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                const timerElement = document.getElementById("timer");
+                timerElement.innerHTML = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Warning colors
+                timerElement.classList.remove('warning', 'danger');
+                if (minutes < 2) {
+                    timerElement.classList.add('danger');
+                } else if (minutes < 10) {
+                    timerElement.classList.add('warning');
+                }
+                
+                // Show warnings
+                if (minutes === 10 && seconds === 0) {
+                    alert('⏰ 10 minutes remaining!');
+                }
+                if (minutes === 2 && seconds === 0) {
+                    alert('🚨 Only 2 minutes left!');
+                }
+            }, 1000);
+        }
+
+        // ============================================
+        // SUBMIT CONFIRMATION
+        // ============================================
+        function showSubmitConfirmation() {
+            const unanswered = questionStates.filter(q => !q.answered).length;
+            const flagged = questionStates.filter(q => q.flagged).length;
+            
+            const warningSection = document.getElementById('warningSection');
+            const warningList = document.getElementById('warningList');
+            const reviewBtn = document.getElementById('reviewBtn');
+            
+            warningList.innerHTML = '';
+            
+            if (unanswered > 0 || flagged > 0) {
+                warningSection.style.display = 'block';
+                
+                if (unanswered > 0) {
+                    const li = document.createElement('li');
+                    li.textContent = `You have ${unanswered} unanswered question${unanswered > 1 ? 's' : ''}`;
+                    warningList.appendChild(li);
+                }
+                
+                if (flagged > 0) {
+                    const li = document.createElement('li');
+                    li.textContent = `You marked ${flagged} question${flagged > 1 ? 's' : ''} for review`;
+                    warningList.appendChild(li);
+                }
+                
+                reviewBtn.style.display = 'inline-block';
+            } else {
+                warningSection.style.display = 'none';
+                reviewBtn.style.display = 'none';
+            }
+            
+            document.getElementById('submitModal').classList.add('show');
+        }
+
+        function closeSubmitModal() {
+            document.getElementById('submitModal').classList.remove('show');
+        }
+
+        function reviewQuestions() {
+            closeSubmitModal();
+            
+            // Jump to first unanswered or flagged question
+            const firstUnanswered = questionStates.findIndex(q => !q.answered);
+            const firstFlagged = questionStates.findIndex(q => q.flagged);
+            
+            const targetIndex = firstUnanswered !== -1 ? firstUnanswered : (firstFlagged !== -1 ? firstFlagged : 0);
+            jumpToQuestion(targetIndex);
+        }
+
+        function submitExam() {
+            clearInterval(timerInterval);
+            document.getElementById('submitForm').submit();
+        }
+
+        // ============================================
+        // REAL-TIME TRACKING (HEARTBEAT)
+        // ============================================
+        function sendHeartbeat(status = "Active") {
+            $.post('/Student/Heartbeat', { 
+                attemptId: @Model.AttemptId, 
+                status: status 
+            });
+        }
+
+        // Start periodic heartbeat
+        setInterval(() => sendHeartbeat("Active"), 15000);
+
+        // Detect tab switching (proctoring)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                sendHeartbeat("Tab Switched / Minimised");
+            } else {
+                sendHeartbeat("Returned to Exam");
+            }
+        });
+
+        // Initialize
+        $(document).ready(function() {
+            startTimer();
+            preventNavigation();
+            updateProgressStats();
+            sendHeartbeat("Started Exam"); // Initial ping
+        });
+    </script>
+</body>
+</html>

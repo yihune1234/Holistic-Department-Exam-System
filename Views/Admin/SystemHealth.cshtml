@@ -1,0 +1,224 @@
+@model HolisticDepartmentExamSystem.Controllers.SystemHealthViewModel
+@{
+    ViewData["Title"] = "System Health";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- System Status Overview -->
+<div class="stats-grid fade-in-up">
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">@Model.TotalUsers</div>
+        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-secondary);">
+            @Model.ActiveUsers active
+        </div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-icon">📝</div>
+        <div class="stat-label">Total Exams</div>
+        <div class="stat-value">@Model.TotalExams</div>
+        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-secondary);">
+            @Model.ActiveExams active
+        </div>
+    </div>
+
+    <div class="stat-card info">
+        <div class="stat-icon">📊</div>
+        <div class="stat-label">Total Attempts</div>
+        <div class="stat-value">@Model.TotalAttempts</div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-icon">🕐</div>
+        <div class="stat-label">Recent Activity</div>
+        <div class="stat-value">@Model.RecentActivity</div>
+        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-secondary);">
+            Last 24 hours
+        </div>
+    </div>
+</div>
+
+<!-- System Components Status -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+    <!-- Database Status -->
+    <div class="content-card fade-in-up">
+        <div style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">💾</div>
+            <h3 style="margin-bottom: 0.5rem;">Database</h3>
+            <div style="display: inline-block; padding: 0.5rem 1rem; background: rgba(46, 213, 115, 0.2); border-radius: 20px; margin-bottom: 1rem;">
+                <span style="color: #2ed573; font-weight: 600;">✅ Connected</span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">
+                Size: @Model.DatabaseSize
+            </p>
+        </div>
+    </div>
+
+    <!-- Application Status -->
+    <div class="content-card fade-in-up">
+        <div style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚡</div>
+            <h3 style="margin-bottom: 0.5rem;">Application</h3>
+            <div style="display: inline-block; padding: 0.5rem 1rem; background: rgba(46, 213, 115, 0.2); border-radius: 20px; margin-bottom: 1rem;">
+                <span style="color: #2ed573; font-weight: 600;">✅ Running</span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">
+                Uptime: @Model.SystemUptime
+            </p>
+        </div>
+    </div>
+
+    <!-- Security Status -->
+    <div class="content-card fade-in-up">
+        <div style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+            <h3 style="margin-bottom: 0.5rem;">Security</h3>
+            <div style="display: inline-block; padding: 0.5rem 1rem; background: rgba(46, 213, 115, 0.2); border-radius: 20px; margin-bottom: 1rem;">
+                <span style="color: #2ed573; font-weight: 600;">✅ Secure</span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">
+                All systems protected
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Metrics -->
+<div class="content-card fade-in-up" style="margin-top: 1.5rem;">
+    <div class="card-header">
+        <h3 class="card-title">System Metrics</h3>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; padding: 1rem;">
+        <!-- User Metrics -->
+        <div>
+            <h4 style="font-size: 0.875rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem;">
+                User Statistics
+            </h4>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Total Users</span>
+                    <span style="font-weight: 600;">@Model.TotalUsers</span>
+                </div>
+                <div style="background: var(--sidebar-bg); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: var(--primary-gradient); height: 100%; width: 100%;"></div>
+                </div>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Active Users</span>
+                    <span style="font-weight: 600;">@Model.ActiveUsers</span>
+                </div>
+                <div style="background: var(--sidebar-bg); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: var(--success-gradient); height: 100%; width: @((Model.TotalUsers > 0 ? (Model.ActiveUsers * 100.0 / Model.TotalUsers) : 0).ToString("F0"))%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam Metrics -->
+        <div>
+            <h4 style="font-size: 0.875rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem;">
+                Exam Statistics
+            </h4>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Total Exams</span>
+                    <span style="font-weight: 600;">@Model.TotalExams</span>
+                </div>
+                <div style="background: var(--sidebar-bg); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: var(--info-gradient); height: 100%; width: 100%;"></div>
+                </div>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Active Exams</span>
+                    <span style="font-weight: 600;">@Model.ActiveExams</span>
+                </div>
+                <div style="background: var(--sidebar-bg); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: var(--warning-gradient); height: 100%; width: @((Model.TotalExams > 0 ? (Model.ActiveExams * 100.0 / Model.TotalExams) : 0).ToString("F0"))%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Metrics -->
+        <div>
+            <h4 style="font-size: 0.875rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem;">
+                Activity Statistics
+            </h4>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Total Attempts</span>
+                    <span style="font-weight: 600;">@Model.TotalAttempts</span>
+                </div>
+                <div style="background: var(--sidebar-bg); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: var(--primary-gradient); height: 100%; width: 100%;"></div>
+                </div>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Recent Activity (24h)</span>
+                    <span style="font-weight: 600;">@Model.RecentActivity</span>
+                </div>
+                <div style="background: var(--sidebar-bg); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: var(--success-gradient); height: 100%; width: @((Model.TotalAttempts > 0 ? Math.Min(100, (Model.RecentActivity * 100.0 / Model.TotalAttempts)) : 0).ToString("F0"))%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Health Indicators -->
+<div class="content-card fade-in-up" style="margin-top: 1.5rem;">
+    <div class="card-header">
+        <h3 class="card-title">Health Indicators</h3>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; padding: 1rem;">
+        <div style="text-align: center; padding: 1rem; background: var(--sidebar-bg); border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">✅</div>
+            <div style="font-weight: 600; margin-bottom: 0.25rem;">System Status</div>
+            <div style="color: #2ed573; font-size: 0.875rem;">Operational</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--sidebar-bg); border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
+            <div style="font-weight: 600; margin-bottom: 0.25rem;">Performance</div>
+            <div style="color: #2ed573; font-size: 0.875rem;">Excellent</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--sidebar-bg); border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💾</div>
+            <div style="font-weight: 600; margin-bottom: 0.25rem;">Storage</div>
+            <div style="color: #4facfe; font-size: 0.875rem;">Available</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--sidebar-bg); border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔒</div>
+            <div style="font-weight: 600; margin-bottom: 0.25rem;">Security</div>
+            <div style="color: #2ed573; font-size: 0.875rem;">Protected</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="content-card fade-in-up" style="margin-top: 1.5rem;">
+    <div class="card-header">
+        <h3 class="card-title">Quick Actions</h3>
+    </div>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; padding: 1rem;">
+        <a asp-action="ActivityLogs" class="btn-custom btn-outline-custom">
+            <span>🕵️</span> View Activity Logs
+        </a>
+        <a asp-action="SystemSettings" class="btn-custom btn-outline-custom">
+            <span>⚙️</span> System Settings
+        </a>
+        <a asp-action="SystemReports" class="btn-custom btn-outline-custom">
+            <span>📊</span> View Reports
+        </a>
+        <button onclick="location.reload()" class="btn-custom btn-outline-custom">
+            <span>🔄</span> Refresh Status
+        </button>
+    </div>
+</div>

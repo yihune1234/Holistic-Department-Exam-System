@@ -1,0 +1,592 @@
+/* ============================================
+   STUDENT EXAM UI - PROFESSIONAL CBT SYSTEM
+   ============================================ */
+
+:root {
+    --exam-primary: #0061f2;
+    --exam-success: #10b981;
+    --exam-danger: #ef4444;
+    --exam-warning: #f59e0b;
+    --exam-answered: #10b981;
+    --exam-flagged: #ef4444;
+    --exam-unanswered: #e2e8f0;
+    --exam-bg: #f8fafc;
+    --exam-card-bg: #ffffff;
+    --exam-border: #e2e8f0;
+    --exam-text: #0f172a;
+    --exam-text-secondary: #64748b;
+}
+
+/* ============================================
+   EXAM CONTAINER
+   ============================================ */
+.exam-container {
+    min-height: 100vh;
+    background: var(--exam-bg);
+    padding: 0;
+    margin: 0;
+}
+
+/* ============================================
+   TOP BAR (Fixed Header)
+   ============================================ */
+.exam-top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #0061f2 0%, #004fe3 100%);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(0, 97, 242, 0.15);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.exam-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.exam-timer {
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 0.5rem 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    min-width: 120px;
+    text-align: center;
+}
+
+.exam-timer.warning {
+    background: var(--exam-warning);
+    animation: pulse 1s infinite;
+}
+
+.exam-timer.danger {
+    background: var(--exam-danger);
+    animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.exam-submit-btn {
+    background: var(--exam-danger);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.exam-submit-btn:hover {
+    background: #ee5a6f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+}
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+.exam-content {
+    margin-top: 80px;
+    padding: 2rem;
+    display: flex;
+    gap: 2rem;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ============================================
+   QUESTION AREA (Left Side)
+   ============================================ */
+.question-area {
+    flex: 1;
+    background: var(--exam-card-bg);
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    min-height: 500px;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--exam-border);
+}
+
+.question-number {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--exam-primary);
+}
+
+.question-marks {
+    background: var(--exam-primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.question-text {
+    font-size: 1.25rem;
+    color: var(--exam-text);
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    font-weight: 500;
+}
+
+/* ============================================
+   OPTIONS AREA
+   ============================================ */
+.options-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.option-item {
+    position: relative;
+    background: var(--exam-bg);
+    border: 2px solid var(--exam-border);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.option-item:hover {
+    border-color: var(--exam-primary);
+    background: rgba(79, 172, 254, 0.05);
+    transform: translateX(5px);
+}
+
+.option-item.selected {
+    border-color: var(--exam-success);
+    background: rgba(46, 213, 115, 0.1);
+    border-width: 3px;
+}
+
+.option-radio {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: var(--exam-success);
+}
+
+.option-label {
+    font-size: 1rem;
+    color: var(--exam-text);
+    cursor: pointer;
+    flex: 1;
+    margin: 0;
+}
+
+/* ============================================
+   ACTION BUTTONS (Below Question)
+   ============================================ */
+.question-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--exam-border);
+    gap: 1rem;
+}
+
+.action-btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.btn-previous {
+    background: var(--exam-border);
+    color: var(--exam-text);
+}
+
+.btn-previous:hover:not(:disabled) {
+    background: #c0c0c0;
+}
+
+.btn-previous:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-flag {
+    background: white;
+    color: var(--exam-danger);
+    border: 2px solid var(--exam-danger);
+}
+
+.btn-flag:hover {
+    background: var(--exam-danger);
+    color: white;
+}
+
+.btn-flag.flagged {
+    background: var(--exam-danger);
+    color: white;
+}
+
+.btn-next {
+    background: var(--exam-primary);
+    color: white;
+}
+
+.btn-next:hover {
+    background: #3d8fe0;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+}
+
+/* ============================================
+   NAVIGATION PANEL (Right Side)
+   ============================================ */
+.navigation-panel {
+    width: 350px;
+    background: var(--exam-card-bg);
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    position: sticky;
+    top: 100px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.nav-panel-header {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--exam-text);
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--exam-border);
+}
+
+/* ============================================
+   PROGRESS INDICATOR
+   ============================================ */
+.progress-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--exam-bg);
+    border-radius: 8px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--exam-primary);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--exam-text-secondary);
+    margin-top: 0.25rem;
+}
+
+.stat-item.answered .stat-value {
+    color: var(--exam-answered);
+}
+
+.stat-item.flagged .stat-value {
+    color: var(--exam-flagged);
+}
+
+/* ============================================
+   QUESTION GRID
+   ============================================ */
+.question-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.question-btn {
+    aspect-ratio: 1;
+    border: 2px solid var(--exam-border);
+    background: white;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.question-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.question-btn.current {
+    border-width: 3px;
+    border-color: var(--exam-primary);
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+}
+
+/* Question Button States */
+.question-btn.answered {
+    background: var(--exam-answered);
+    color: white;
+    border-color: var(--exam-answered);
+}
+
+.question-btn.flagged {
+    background: var(--exam-flagged);
+    color: white;
+    border-color: var(--exam-flagged);
+}
+
+.question-btn.unanswered {
+    background: white;
+    color: var(--exam-text);
+    border-color: var(--exam-border);
+}
+
+/* Flag icon for flagged questions */
+.question-btn.flagged::after {
+    content: '🚩';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 0.75rem;
+}
+
+/* ============================================
+   LEGEND
+   ============================================ */
+.question-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--exam-bg);
+    border-radius: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+}
+
+.legend-box {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 2px solid;
+}
+
+.legend-box.answered {
+    background: var(--exam-answered);
+    border-color: var(--exam-answered);
+}
+
+.legend-box.flagged {
+    background: var(--exam-flagged);
+    border-color: var(--exam-flagged);
+}
+
+.legend-box.unanswered {
+    background: white;
+    border-color: var(--exam-border);
+}
+
+/* ============================================
+   MODAL / POPUP
+   ============================================ */
+.exam-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.exam-modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--exam-text);
+    margin-bottom: 1rem;
+}
+
+.modal-body {
+    color: var(--exam-text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.modal-warning {
+    background: rgba(255, 165, 2, 0.1);
+    border-left: 4px solid var(--exam-warning);
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 5px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.modal-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-btn-primary {
+    background: var(--exam-primary);
+    color: white;
+}
+
+.modal-btn-danger {
+    background: var(--exam-danger);
+    color: white;
+}
+
+.modal-btn-secondary {
+    background: var(--exam-border);
+    color: var(--exam-text);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 1200px) {
+    .navigation-panel {
+        width: 300px;
+    }
+    
+    .question-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .exam-content {
+        flex-direction: column;
+    }
+    
+    .navigation-panel {
+        width: 100%;
+        position: relative;
+        top: 0;
+        max-height: none;
+    }
+    
+    .question-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .exam-top-bar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .exam-title {
+        font-size: 1rem;
+    }
+    
+    .exam-timer {
+        font-size: 1.25rem;
+    }
+    
+    .question-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+    
+    .progress-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.question-area,
+.navigation-panel {
+    animation: fadeIn 0.5s ease;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .exam-top-bar,
+    .navigation-panel,
+    .question-actions {
+        display: none !important;
+    }
+}

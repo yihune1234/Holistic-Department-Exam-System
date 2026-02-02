@@ -1,0 +1,175 @@
+@model List<HolisticDepartmentExamSystem.Models.Student>
+@{
+    ViewData["Title"] = "Manage Students";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var currentSearch = ViewBag.CurrentSearch as string ?? "";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    var totalStudents = ViewBag.TotalStudents as int? ?? 0;
+}
+
+<div class="content-card fade-in-up">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">Student Management</h3>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0.5rem 0 0 0;">
+                Total: @totalStudents students
+            </p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <a asp-action="ExportStudents" class="btn-custom btn-outline-custom">
+                <span>📥</span> Export CSV
+            </a>
+            <a asp-action="CreateStudent" class="btn-custom btn-primary-custom">
+                <span>➕</span> Add Student
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <form method="get" asp-action="ManageStudents" style="margin-bottom: 1.5rem;">
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" name="searchString" value="@currentSearch" class="form-control-custom" placeholder="Search by name, email, or department..." />
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Year</th>
+                    <th>Username</th>
+                    <th style="text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var student in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">@student.FullName</div>
+                            </td>
+                            <td style="color: var(--text-secondary);">
+                                @(student.Email ?? "N/A")
+                            </td>
+                            <td>
+                                <span class="badge-custom badge-active">@(student.Department ?? "N/A")</span>
+                            </td>
+                            <td>
+                                <span class="badge-custom badge-draft">Year @student.YearOfStudy</span>
+                            </td>
+                            <td style="color: var(--text-secondary); font-size: 0.875rem;">
+                                @(student.User?.Username ?? "N/A")
+                            </td>
+                            <td>
+                                <div class="action-buttons" style="justify-content: center;">
+                                    <a asp-action="StudentDetails" asp-route-id="@student.StudentId" class="btn-custom btn-outline-custom btn-icon" title="View Details">
+                                        <span>👁️</span>
+                                    </a>
+                                    <a asp-action="EditStudent" asp-route-id="@student.StudentId" class="btn-custom btn-outline-custom btn-icon" title="Edit">
+                                        <span>✏️</span>
+                                    </a>
+                                    <form asp-action="ToggleUserStatus" asp-route-userId="@student.UserId" method="post" style="display: inline;">
+                                        <button type="submit" class="btn-custom btn-icon @(student.User?.Status == true ? "btn-warning-custom" : "btn-success-custom")" title="@(student.User?.Status == true ? "Deactivate Account" : "Activate Account")">
+                                            <span>@(student.User?.Status == true ? "🚫" : "✅")</span>
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="DeleteStudent" asp-route-id="@student.StudentId" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this student? This action cannot be undone.');">
+                                        <button type="submit" class="btn-custom btn-danger-custom btn-icon" title="Delete">
+                                            <span>🗑️</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎓</div>
+                            @if (!string.IsNullOrEmpty(currentSearch))
+                            {
+                                <div style="font-size: 1.125rem;">No students found matching "@currentSearch"</div>
+                                <div style="font-size: 0.875rem; margin-top: 0.5rem;">
+                                    <a asp-action="ManageStudents" style="color: #4facfe; text-decoration: none;">Clear search</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="font-size: 1.125rem;">No students found</div>
+                                <div style="font-size: 0.875rem; margin-top: 0.5rem;">Create your first student to get started</div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1)
+    {
+        <div class="pagination-custom">
+            @if (currentPage > 1)
+            {
+                <a asp-action="ManageStudents" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch">← Previous</a>
+            }
+
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                if (i == currentPage)
+                {
+                    <span class="active">@i</span>
+                }
+                else
+                {
+                    <a asp-action="ManageStudents" asp-route-page="@i" asp-route-searchString="@currentSearch">@i</a>
+                }
+            }
+
+            @if (currentPage < totalPages)
+            {
+                <a asp-action="ManageStudents" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch">Next →</a>
+            }
+        </div>
+    }
+</div>
+
+<!-- Student Statistics -->
+@if (Model.Any())
+{
+    <div class="stats-grid" style="margin-top: 1.5rem;">
+        <div class="stat-card">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-label">Total Students</div>
+            <div class="stat-value">@totalStudents</div>
+        </div>
+
+        <div class="stat-card success">
+            <div class="stat-icon">📚</div>
+            <div class="stat-label">Departments</div>
+            <div class="stat-value">@Model.Where(s => !string.IsNullOrEmpty(s.Department)).Select(s => s.Department).Distinct().Count()</div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-icon">📊</div>
+            <div class="stat-label">Current Page</div>
+            <div class="stat-value">@currentPage / @totalPages</div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon">🔍</div>
+            <div class="stat-label">Showing</div>
+            <div class="stat-value">@Model.Count</div>
+        </div>
+    </div>
+}
