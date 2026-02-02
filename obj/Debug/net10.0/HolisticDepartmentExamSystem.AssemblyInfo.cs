@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HolisticDepartmentExamSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+64424778bafef37cc84d73b59cb3e2dd27fcb3da")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ab0f70054e76f586962482d41857586b17d5bbf2")]
 [assembly: System.Reflection.AssemblyProductAttribute("HolisticDepartmentExamSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HolisticDepartmentExamSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

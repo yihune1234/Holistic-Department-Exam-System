@@ -90,6 +90,7 @@ namespace HolisticDepartmentExamSystem.Controllers
             var exams = await _context.Exams
                 .Where(e => e.Status == "Published" || e.Status == "Active")
                 .Include(e => e.ExamPasswords.Where(ep => ep.StudentId == student.StudentId))
+                .OrderBy(e => e.ExamId)
                 .ToListAsync();
             
             return View(exams);

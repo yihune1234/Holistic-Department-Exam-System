@@ -35,8 +35,14 @@
             }
         }
 
-        @foreach (var answer in Model.Answers.GroupBy(a => a.QuestionId).Select(g => g.First()))
+        @{
+            var uniqueAnswers = Model.Answers.GroupBy(a => a.QuestionId).Select(g => g.First()).OrderBy(a => a.Question.QuestionOrder).ToList();
+            int questionIndex = 0;
+        }
+
+        @foreach (var answer in uniqueAnswers)
         {
+            questionIndex++;
             var isCorrect = answer.SelectedChoice?.IsCorrect ?? false;
             var weightedMarks = weightedMarksDict.ContainsKey(answer.Question.QuestionId) 
                 ? weightedMarksDict[answer.Question.QuestionId] 
@@ -48,7 +54,7 @@
                     <div class="d-flex justify-content-between align-items-start gap-4">
                         <div class="d-flex gap-3">
                             <div class="bg-navy bg-opacity-10 text-navy rounded-circle d-flex align-items-center justify-content-center fw-bold" style="min-width: 40px; height: 40px;">
-                                @(Model.Answers.IndexOf(answer) + 1)
+                                @questionIndex
                             </div>
                             <div>
                                 <h5 class="fw-bold text-navy mb-0">@answer.Question.QuestionText</h5>
